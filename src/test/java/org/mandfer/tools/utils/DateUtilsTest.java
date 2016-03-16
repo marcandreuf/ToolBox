@@ -2,11 +2,14 @@ package org.mandfer.tools.utils;
 
 
 import org.joda.time.*;
+import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Locale;
 
 import static org.junit.Assert.assertTrue;
 import static org.mandfer.tools.utils.DateUtils.DEFAULT_LONG_DATE_FORMAT;
@@ -99,7 +102,10 @@ public class DateUtilsTest {
         String dayMonth = "17 Sep";
         String testDate = dayMonth + " " + year;
 
-        DateTime parsedDate = dateUtils.getDateTimeFromString(testDate, DEFAULT_SHORT_DATE_FORMAT);
+        DateTime parsedDate = dateUtils.getDateTimeFromString(
+                testDate,
+                DEFAULT_SHORT_DATE_FORMAT,
+                Locale.ENGLISH );
 
         assertTrue(parsedDate.dayOfMonth().get() == 17);
         assertTrue(parsedDate.monthOfYear().get() == 9);
@@ -108,12 +114,10 @@ public class DateUtilsTest {
 
     @Test
     public void testGetDateTimeFromStringLongDate() {
-        String year = "2013";
-        String dayMonth = "September 17";
-        String testDate = dayMonth + " " + year;
-
         DateTime parsedDate = dateUtils.getDateTimeFromString(
-                testDate, DEFAULT_LONG_DATE_FORMAT);
+                "September 17 2013",
+                DEFAULT_LONG_DATE_FORMAT,
+                Locale.ENGLISH );
 
         assertTrue(parsedDate.dayOfMonth().get() == 17);
         assertTrue(parsedDate.monthOfYear().get() == 9);
@@ -122,11 +126,11 @@ public class DateUtilsTest {
 
     @Test
     public void testPrintFormattedDateTime() {
-        DateTime sampleDate = new DateTime(2013, 9, 26, 0, 0, 0);
+        DateTime sampleDate = new DateTime(2013, 8, 26, 0, 0, 0);
 
-        String printedDate = dateUtils.printFormatted(sampleDate, DEFAULT_SHORT_DATE_FORMAT);
+        String printedDate = dateUtils.printFormatted(sampleDate, DEFAULT_SHORT_DATE_FORMAT, Locale.ENGLISH);
 
-        assertTrue(printedDate.equals("26 Sep 2013"));
+        assertTrue("Expected: 26 Aug 2013 of actual value " + printedDate, printedDate.equalsIgnoreCase("26 Aug 2013"));
     }
 
 
