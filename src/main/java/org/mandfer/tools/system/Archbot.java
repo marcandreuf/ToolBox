@@ -4,7 +4,6 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifDirectoryBase;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.comparator.LastModifiedFileComparator;
@@ -15,10 +14,12 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Random;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -88,6 +89,9 @@ public class Archbot {
                 Path child = monitoredFolder.resolve(name);
                 logger.debug(event.kind().name() + ", "+child);
 
+                moveToArchivedFolder(child.toFile());
+
+                /*
                 if(monitoredFolder != null) {
                     long bytesSize = FileUtils.sizeOfDirectory(monitoredFolder.toFile());
                     double kiloBytes = bytesSize / 1024;
@@ -95,42 +99,42 @@ public class Archbot {
                     //double gigaBytes = megaBytes / 1024;
                     logger.info("Current size of: " + monitoredFolder + " is:" +
                             String.format("%.2f", currentFolderSize) +" Mb");
-                }
+                }*/
 
 
-                if(currentFolderSize >= (folderLimit * LIMIT_FACTOR)) {
+                //if(currentFolderSize >= (folderLimit * LIMIT_FACTOR)) {
                     try {
-                        List<File> list = new ArrayList<>();
+                        //List<File> list = new ArrayList<>();
 
-                        Files.list(monitoredFolder)
-                                .filter(d -> d.toFile().isFile())
-                                .forEach(f -> list.add(f.toFile()));
+                        //Files.list(monitoredFolder)
+                        //        .filter(d -> d.toFile().isFile())
+                        //        .forEach(f -> list.add(f.toFile()));
                         //TODO: Change for a creation time comparator reading image metadata.
                         // Get Apache Commons code and extend LastModifiedFileComparator and
                         // Implement a CreationTimeFileComparator reading image metadata.
                         // Setup a list of 5 sample images
                         // Setup test cases
-                        list.sort(LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
-                        list.stream().forEach((file) -> {
-                            logfileInfo(file);
-                        });
+                        //list.sort(LastModifiedFileComparator.LASTMODIFIED_COMPARATOR);
+                        //list.stream().forEach((file) -> {
+                        //    logfileInfo(file);
+                        //});
 
 
-                        int listSize = list.size();
-                        int endRange = (int) (listSize * LIMIT_FACTOR);
-                        List<File> listToProcess = list.subList(0, endRange);
+                        //int listSize = list.size();
+                        //int endRange = (int) (listSize * LIMIT_FACTOR);
+                        //List<File> listToProcess = list.subList(0, endRange);
 
-                        for(File file : listToProcess){
-                            moveToArchivedFolder(file);
-                        }
+                        //for(File file : listToProcess){
+                            //moveToArchivedFolder(file);
+                        //}
 
                     } catch (IOException e) {
                         logger.debug(e.getMessage(), e);
                     }
-                }else{
-                    double usedPer = (currentFolderSize / folderLimit) * 100;
-                    logger.info("Used quota "+usedPer+" %");
-                }
+                //}else{
+                //    double usedPer = (currentFolderSize / folderLimit) * 100;
+                //   logger.info("Used quota "+usedPer+" %");
+                //}
 
                 boolean valid = key.reset();
                 if (!valid) {
