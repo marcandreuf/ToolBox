@@ -1,6 +1,7 @@
 package org.mandfer.tools.system;
 
 import org.apache.commons.io.FileUtils;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -21,6 +22,7 @@ public class WatchDirTest {
 
 
     @Test
+    @Ignore
     public void testDirSize(){
 
         long bytesSize = FileUtils.sizeOfDirectory(new File("D:\\VMS"));
