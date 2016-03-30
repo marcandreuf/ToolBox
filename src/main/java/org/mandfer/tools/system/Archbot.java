@@ -54,33 +54,39 @@ public class Archbot {
         this.monitoredFolder = monitoredFolder;
         this.archiveFolder = archiveFolder;
         this.watcher = FileSystems.getDefault().newWatchService();
-        registeredKey = this.monitoredFolder.register(watcher, ENTRY_CREATE, ENTRY_DELETE);
+        registeredKey = this.monitoredFolder.register(watcher, ENTRY_CREATE);
     }
 
-    private void processEvents() throws Exception {
+    private void processEvents() {
+        logger.info("Listening create events at "+monitoredFolder);
 
         for(;;){
-            extractKey();
-            if (isRegisteredKey()) {
-                for (WatchEvent<?> event : key.pollEvents()) {
-                    WatchEvent.Kind kind = event.kind();
 
-                    if (kind == OVERFLOW) {
-                        logger.warn("Overflow event");
-                        continue;
+            try {
+                extractKey();
+                if (isRegisteredKey()) {
+                    for (WatchEvent<?> event : key.pollEvents()) {
+                        WatchEvent.Kind kind = event.kind();
+
+                        if (kind == OVERFLOW) {
+                            logger.warn("Overflow event");
+                            continue;
+                        }
+
+                        WatchEvent<Path> pathEvent = cast(event);
+                        Path name = pathEvent.context();
+                        Path path = monitoredFolder.resolve(name);
+                        logger.debug(event.kind().name() + ", " + path);
+
+                        archivePhoto(path.toFile());
                     }
-
-                    WatchEvent<Path> pathEvent = cast(event);
-                    Path name = pathEvent.context();
-                    Path child = monitoredFolder.resolve(name);
-                    logger.debug(event.kind().name() + ", " + child);
-
-                    archivePhoto(child.toFile());
-
-                    boolean valid = key.reset();
-                    if (!valid) {
-                        break;
-                    }
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            } finally {
+                boolean valid = key.reset();
+                if (!valid) {
+                    break;
                 }
             }
 
@@ -105,46 +111,41 @@ public class Archbot {
         }
     }
 
-    private void archivePhoto(File file) {
+    private void archivePhoto(File file) throws ImageProcessingException, IOException {
         Date date;
-        try {
-            Metadata metadata = ImageMetadataReader.readMetadata(file);
-            Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class );
-            date = getDate(file, directory);
 
-            LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-            int year = localDate.getYear();
-            int month = localDate.getMonthValue();
-            int day = localDate.getDayOfMonth();
+        Metadata metadata = ImageMetadataReader.readMetadata(file);
+        Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class );
+        date = getDate(file, directory);
+
+        LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        int year = localDate.getYear();
+        int month = localDate.getMonthValue();
+        int day = localDate.getDayOfMonth();
 
 
-            String destinationPath = archiveFolder + File.separator +
-                        year + file.separator +
-                        month + file.separator +
-                        day + file.separator +
-                        file.getName();
+        String destinationPath = archiveFolder + File.separator +
+                    year + file.separator +
+                    month + file.separator +
+                    day + file.separator +
+                    file.getName();
 
-            File checkFile = new File(destinationPath);
-            Random rand = new Random();
-            if(checkFile.exists()){
-                destinationPath = archiveFolder + File.separator +
-                           year + file.separator +
-                           month + file.separator +
-                           day + file.separator + "_" + (rand.nextInt(8)+1) +
-                           file.getName();
-            }
-            logger.debug("Move file "+ file.getAbsolutePath() +" to: " + destinationPath);
+        File checkFile = new File(destinationPath);
+        Random rand = new Random();
+        if(checkFile.exists()){
+            destinationPath = archiveFolder + File.separator +
+                       year + file.separator +
+                       month + file.separator +
+                       day + file.separator +
+                       file.getName() +
+                       "_" + (rand.nextInt(8)+1);
+        }
 
-            Path origPath = file.toPath();
-            Path destPath = FileSystems.getDefault().getPath(destinationPath);
-            if(destPath.toFile().mkdirs()){
-                Files.move(origPath, destPath, StandardCopyOption.REPLACE_EXISTING );
-                logger.info("File moved from " + origPath + " to " + destPath );
-            }
-        } catch (ImageProcessingException e) {
-            logger.debug(e.getMessage(), e);
-        } catch (IOException e) {
-            logger.debug(e.getMessage(), e);
+        Path origPath = file.toPath();
+        Path destPath = FileSystems.getDefault().getPath(destinationPath);
+        if(destPath.toFile().mkdirs()){
+            Files.move(origPath, destPath, StandardCopyOption.REPLACE_EXISTING );
+            logger.info("File moved from " + origPath + " to " + destPath );
         }
     }
 
@@ -159,5 +160,4 @@ public class Archbot {
         }
         return date;
     }
-
 }
