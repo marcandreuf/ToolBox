@@ -82,7 +82,11 @@ public class Archbot {
                     }
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                if(e.getMessage().contains("Stream ended before file")){
+                    logger.debug("File metadata not ready yet.");
+                }else {
+                    logger.error(e.getMessage(), e);
+                }
             } finally {
                 boolean valid = key.reset();
                 if (!valid) {
