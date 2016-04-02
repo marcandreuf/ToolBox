@@ -1,0 +1,44 @@
+<!-- Simple basic logback config file
+
+Config details: http://logback.qos.ch/manual/configuration.html
+
+Configuration debug="true" will print config debug information.
+-->
+
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg %n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.mandfer.tools" level="DEBUG"/>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+
+    <!--
+    appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>arcbot.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>arcbot_%d{yyyy-MM-dd}_%i.log</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>3GB</totalSizeCap>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="org.mandfer.tools.system" level="DEBUG"/>
+
+    <root level="INFO">
+        <appender-ref ref="FILE" />
+    </root
+    -->
+
+</configuration>

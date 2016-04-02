@@ -5,6 +5,8 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import org.mandfer.tools.validation.ImageValidator;
+import org.mandfer.tools.validation.ImageValidatorRegExp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +31,7 @@ public class Archbot {
     private final WatchService watcher;
     private final Path monitoredFolder;
     private final Path archiveFolder;
+    private final ImageValidator imageValidator;
     private final WatchKey registeredKey;
     private WatchKey key;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -42,7 +45,7 @@ public class Archbot {
         if(args.length == 0 || args.length > 3){
             howToUseInfo();
         }
-        new Archbot(Paths.get(args[0]), Paths.get(args[1])).processEvents();
+        new Archbot(Paths.get(args[0]), Paths.get(args[1]), new ImageValidatorRegExp()).processEvents();
     }
 
     private static void howToUseInfo(){
@@ -50,9 +53,10 @@ public class Archbot {
         System.exit(-1);
     }
 
-    private Archbot(Path monitoredFolder, Path archiveFolder) throws IOException {
+    private Archbot(Path monitoredFolder, Path archiveFolder, ImageValidator imageValidator) throws IOException {
         this.monitoredFolder = monitoredFolder;
         this.archiveFolder = archiveFolder;
+        this.imageValidator = imageValidator;
         this.watcher = FileSystems.getDefault().newWatchService();
         registeredKey = this.monitoredFolder.register(watcher, ENTRY_CREATE);
     }
@@ -61,7 +65,7 @@ public class Archbot {
         logger.info("Listening create events at "+monitoredFolder);
 
         for(;;){
-
+            logger.debug("---- Start processing events ----");
             try {
                 extractKey();
                 if (isRegisteredKey()) {
@@ -69,7 +73,7 @@ public class Archbot {
                         WatchEvent.Kind kind = event.kind();
 
                         if (kind == OVERFLOW) {
-                            logger.warn("Overflow event");
+                            logger.warn(" !!! OVERFLOW event !!!!");
                             continue;
                         }
 
@@ -78,14 +82,24 @@ public class Archbot {
                         Path path = monitoredFolder.resolve(name);
                         logger.debug(event.kind().name() + ", " + path);
 
-                        archivePhoto(path.toFile());
+                        if(imageValidator.validate(path.getFileName().toString())) {
+                            archivePhoto(path.toFile());
+                        }
                     }
                 }
             } catch (Exception e) {
-                if(e.getMessage().contains("Stream ended before file")){
-                    logger.debug("File metadata not ready yet.");
-                }else {
-                    logger.error(e.getMessage(), e);
+                if(e != null && e.getMessage() != null){
+                    if(e.getMessage().contains("Stream ended before file")){
+                        logger.debug("File not fully loaded yet.");
+                    }else {
+                        logger.error(e.getMessage(), e);
+                    }
+                }else{
+                    if(e != null) {
+                        logger.error("No exception error ", e);
+                    }else{
+                        logger.error("No exception available. ");
+                    }
                 }
             } finally {
                 boolean valid = key.reset();
@@ -93,7 +107,6 @@ public class Archbot {
                     break;
                 }
             }
-
             logger.debug("------------------");
         }
     }
@@ -117,7 +130,6 @@ public class Archbot {
 
     private void archivePhoto(File file) throws ImageProcessingException, IOException {
         Date date;
-
         Metadata metadata = ImageMetadataReader.readMetadata(file);
         Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class );
         date = getDate(file, directory);
@@ -126,7 +138,6 @@ public class Archbot {
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
         int day = localDate.getDayOfMonth();
-
 
         String destinationPath = archiveFolder + File.separator +
                     year + file.separator +
