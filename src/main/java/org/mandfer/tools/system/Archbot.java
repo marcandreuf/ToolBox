@@ -5,12 +5,15 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import org.mandfer.tools.format.FormatterBasic;
+import org.mandfer.tools.format.StringFormatter;
 import org.mandfer.tools.validation.ImageValidator;
 import org.mandfer.tools.validation.ImageValidatorRegExp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -27,11 +30,13 @@ import static java.nio.file.StandardWatchEventKinds.*;
  */
 public class Archbot {
 
+    public static final int MAX_READ_METADATA_ATTEPTS = 3;
     private static Logger logger = LoggerFactory.getLogger(Archbot.class);
     private final WatchService watcher;
     private final Path monitoredFolder;
     private final Path archiveFolder;
     private final ImageValidator imageValidator;
+    private final StringFormatter stringFormatter;
     private final WatchKey registeredKey;
     private WatchKey key;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -45,7 +50,8 @@ public class Archbot {
         if(args.length == 0 || args.length > 3){
             howToUseInfo();
         }
-        new Archbot(Paths.get(args[0]), Paths.get(args[1]), new ImageValidatorRegExp()).processEvents();
+        new Archbot(Paths.get(args[0]), Paths.get(args[1]),
+                new ImageValidatorRegExp(), new FormatterBasic()).processEvents();
     }
 
     private static void howToUseInfo(){
@@ -53,10 +59,12 @@ public class Archbot {
         System.exit(-1);
     }
 
-    private Archbot(Path monitoredFolder, Path archiveFolder, ImageValidator imageValidator) throws IOException {
+    private Archbot(Path monitoredFolder, Path archiveFolder,
+                    ImageValidator imageValidator, StringFormatter stringFormatter) throws IOException {
         this.monitoredFolder = monitoredFolder;
         this.archiveFolder = archiveFolder;
         this.imageValidator = imageValidator;
+        this.stringFormatter = stringFormatter;
         this.watcher = FileSystems.getDefault().newWatchService();
         registeredKey = this.monitoredFolder.register(watcher, ENTRY_CREATE);
     }
@@ -90,7 +98,7 @@ public class Archbot {
             } catch (Exception e) {
                 if(e != null && e.getMessage() != null){
                     if(e.getMessage().contains("Stream ended before file")){
-                        logger.debug("File not fully loaded yet.");
+                        logger.debug("File metadata not readable.", e);
                     }else {
                         logger.error(e.getMessage(), e);
                     }
@@ -128,51 +136,73 @@ public class Archbot {
         }
     }
 
-    private void archivePhoto(File file) throws ImageProcessingException, IOException {
+    private void archivePhoto(File file) throws ImageProcessingException, IOException, InterruptedException {
         Date date;
-        Metadata metadata = ImageMetadataReader.readMetadata(file);
-        Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class );
-        date = getDate(file, directory);
+        Metadata metadata = null;
+
+        int attempts = 0;
+        boolean isRead = false;
+        do{
+            try {
+                logger.debug("Try to read file " + file.getAbsolutePath());
+                metadata = ImageMetadataReader.readMetadata(file);
+                isRead = true;
+            }catch (IOException ioe){
+                logger.debug("wait 500", ioe);
+                Thread.sleep(500);
+            }
+            attempts ++;
+        }while (isRead == false && attempts <= MAX_READ_METADATA_ATTEPTS);
+
+        date = getDate(file, metadata);
 
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
         int day = localDate.getDayOfMonth();
 
-        String destinationPath = archiveFolder + File.separator +
-                    year + file.separator +
-                    month + file.separator +
-                    day + file.separator +
-                    file.getName();
+        String formattedMonth = stringFormatter.formatNumber(month, 2);
+        String formattedDay = stringFormatter.formatNumber(day, 2);
 
-        File checkFile = new File(destinationPath);
-        Random rand = new Random();
-        if(checkFile.exists()){
-            destinationPath = archiveFolder + File.separator +
-                       year + file.separator +
-                       month + file.separator +
-                       day + file.separator +
-                       file.getName() +
-                       "_" + (rand.nextInt(8)+1);
-        }
+        String destinationPath = archiveFolder + File.separator +
+                year + file.separator +
+                formattedMonth + file.separator +
+                formattedDay + file.separator +
+                file.getName();
+
 
         Path origPath = file.toPath();
         Path destPath = FileSystems.getDefault().getPath(destinationPath);
         if(destPath.toFile().mkdirs()){
-            Files.move(origPath, destPath, StandardCopyOption.REPLACE_EXISTING );
-            logger.info("File moved from " + origPath + " to " + destPath );
+            logger.debug("New path created "+destPath.getParent());
         }
+        Files.move(origPath, destPath, StandardCopyOption.REPLACE_EXISTING);
+        logger.info("File moved from " + origPath + " to " + destPath);
     }
 
-    private Date getDate(File file, Directory directory) throws IOException {
-        Date date;
-        if( directory != null ){
-            date = directory.getDate( ExifIFD0Directory.TAG_DATETIME );
-        } else {
-            logger.error( "There is no EXIF metadata for file " + file.getName() );
-            BasicFileAttributes bfattrib = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-            date = new Date(bfattrib.creationTime().toMillis());
+    private Date getDate(File file, Metadata metadata) throws IOException {
+        Date date = null;
+        if( metadata != null ){
+            Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+            if(directory != null) {
+                date = directory.getDate(ExifIFD0Directory.TAG_DATETIME);
+            }else{
+                logger.debug("File metadata does not have date: "+file);
+            }
+        }
+        if(date == null){
+            date = readFileCreationDate(file);
+        }
+        if(date == null){
+            throw new FileNotFoundException(
+                    "Metadata and File creation time not found for file "+file.getAbsolutePath());
         }
         return date;
+    }
+
+    private Date readFileCreationDate(File file) throws IOException {
+        logger.debug( "There is no EXIF metadata for file " + file.getName() );
+        BasicFileAttributes attib = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
+        return new Date(attib.creationTime().toMillis());
     }
 }
