@@ -8,7 +8,7 @@ if it is an image or a video and it will move it to the "Destination" folder org
 in subfolders of year, month and day. It will use EFIX metadata information if it is available or the creation 
 date instead.
 
-By default the jar file folder it "$USER_HOME/apps/arcbot/current/toolsbox.jar". If a different location is choosen, 
+By default the jar file folder it "$USER_HOME/apps/arcbot/current/toolsbox.jar". If a different location is chosen, 
 please update the "src/main/resources/scripts/arcbot-xxx" service file.
 
 There are two ways to run this tool. 
@@ -49,7 +49,7 @@ Use these steps to setup Sync version 2.x.x
 
 For Arcbot setup
 ```
-1. Add btsync group to the <current user>. i.e "sudo usermod -a -G pi btsync"
+1. Add btsync group to the current user. i.e "sudo usermod -a -G pi btsync"
 2. Configure btsync to run as a service
 3. Link mobile devices photo galleries to the Origin folder.
 ```
@@ -73,11 +73,11 @@ For Arcbot and Btsync setup
 ```  
   2. Copy the "index.php" file to "/var/www/photos/"
   
-  3. Add "www-data" user to <current user> group. i.e
+  3. Add "www-data" user to current user group. i.e
 ```
    usermod -a -G pi www-data
 ```
-  The <current user> needs at least read permissions for images folder.
+  The current user needs at least read permissions for images folder.
   
   4. Edit "index.php" and add a security phrase.
 ```  
