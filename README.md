@@ -1,8 +1,8 @@
 ToolsBox: A collection of useful things
 =======================================
 
-Arcbot: 
--------
+## 1. Arcbot: 
+
 Is a simple tool which listens for "Origin" folder creation event files and for each new new file it will check 
 if it is an image or a video and it will move it to the "Destination" folder organised by data creation time
 in subfolders of year, month and day. It will use EFIX metadata information if it is available or the creation 
@@ -42,8 +42,8 @@ enable admin tools of the Single File PHP Gallery (detailed below)
 ```
 
 
-BtSync configuration:
----------------------
+### 1.1 BtSync configuration:
+
 Use these steps to setup Sync version 2.x.x
 [Official btsync packages ](http://blog.bittorrent.com/2016/02/18/official-linux-packages-for-sync-now-available/)
 
@@ -55,8 +55,8 @@ For Arcbot setup
 ```
 
 
-Single File PHP Gallery: 
-------------------------
+### 1.3 Single File PHP Gallery: 
+
 From [SFPG](http://sye.dk/sfpg/) this is a simple and powerful PHP script to view the synced photos with the browser.
 It is perfect as a light weight photo gallery tool.
 
