@@ -48,11 +48,42 @@ Use these steps to setup Sync version 2.x.x
 [Official btsync packages ](http://blog.bittorrent.com/2016/02/18/official-linux-packages-for-sync-now-available/)
 
 For Arcbot setup
+
+1. Add btsync group to the current user. 
 ```
-1. Add btsync group to the current user. i.e "sudo usermod -a -G pi btsync"
-2. Configure btsync to run as a service
-3. Link mobile devices photo galleries to the Origin folder.
+sudo usermod -a -G pi btsync
 ```
+
+2. Edit the Btsync config file "/etc/btsync/config.json" and edit lines as follows:
+```
+"webui" :
+    {
+        "listen" : "0.0.0.0:8888",
+        "login" : "admin",
+        "password" : "xxxx"
+    }
+NOTE: Add a password for the admin web GUI
+```
+
+3. Restart the btsync service
+```
+sudo service btsync restart
+```
+
+4. Open a browser window to "http://hostIpAddress:8888" . Enter user and password.
+
+
+5. Install the mobile [Sync](https://www.getsync.com/platforms/mobile) application in the devices.
+
+6. Link the mobile devices photo galleries to the "Origin" folder. The simple way is to get the folder key from the 
+mobile device and add a new folder with the web GUI.
+
+6.1 In the mobile Sync app open settings, Advanced settings and activate the swtich "Copy keys instead of links"
+6.2 Go to Folders, Camera backup folder Devices and click button share to copy the Key
+6.3 Send an email to oneself with the key
+6.4 From the backup system machine, open a browser and load the email.
+6.5 Copy key from email
+6.6 Open the web GUI and Add the key with a folder location.
 
 
 ### 1.3 Single File PHP Gallery: 
