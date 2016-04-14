@@ -78,12 +78,12 @@ sudo service btsync restart
 6. Link the mobile devices photo galleries to the "Origin" folder. The simple way is to get the folder key from the 
 mobile device and add a new folder with the web GUI.
 
-6.1 In the mobile Sync app open settings, Advanced settings and activate the swtich "Copy keys instead of links"
-6.2 Go to Folders, Camera backup folder Devices and click button share to copy the Key
-6.3 Send an email to oneself with the key
-6.4 From the backup system machine, open a browser and load the email.
-6.5 Copy key from email
-6.6 Open the web GUI and Add the key with a folder location.
+···6.1. In the mobile Sync app open settings, Advanced settings and activate the swtich "Copy keys instead of links"
+···6.2. Go to Folders, Camera backup folder Devices and click button share to copy the Key
+···6.3. Send an email to oneself with the key
+···6.4. From the backup system machine, open a browser and load the email.
+···6.5. Copy key from email
+···6.6. Open the web GUI and Add the key with a folder location.
 
 
 ### 1.3 Single File PHP Gallery: 
