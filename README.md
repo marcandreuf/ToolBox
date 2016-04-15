@@ -8,12 +8,31 @@ if it is an image or a video and it will move it to the "Destination" folder org
 in subfolders of year, month and day. It will use EFIX metadata information if it is available or the creation 
 date instead.
 
+
+### Installation:
+
+1. Create folder app folder
+``` 
+ mkdir ~/apps/arcbot/current
+ cd  ~/apps/arcbot/current
+``` 
+2. Copy toolsbar.jar with 
+```
+wget https://github.com/marcandreuf/ToolBox/blob/master/out/artifacts/arcbot_jar/toolsbox.jar"
+```
+3. Give permissions 
+```
+chmod 764 toolsbox.jar
+```
+
 By default the jar file folder it "$USER_HOME/apps/arcbot/current/toolsbox.jar". If a different location is chosen, 
 please update the "src/main/resources/scripts/arcbot-xxx" service file.
 
+
+### How to run: 
 There are two ways to run this tool. 
 
-Directly run with the command as follows:
+i. Directly run with the command as follows:
 ```
  Arguments:
  1 = origin folder to listen for create events
@@ -22,13 +41,12 @@ Directly run with the command as follows:
  nohup java -jar toolsbox.jar $1 $2 > $3.log 2>&1 &
 ```
 
-Or
 
-Setup a background service by using the "src/main/resources/scripts/arcbot-xxx" script. 
+ii. Setup a background service. 
 
-1. Copy the script into /etc/init.d/
+1. Copy the init script "src/main/resources/scripts/arcbot-xxx" into /etc/init.d/
 2. Edit the file and replace xxx by the instance name 
-3. Setup the origin folder name locations
+3. Setup the origin and destination folder locations
 
 Notes:
 The origin folder should be the folder used with 'btsync' to sync photos from a mobile device.
@@ -38,20 +56,25 @@ enable admin tools of the Single File PHP Gallery (detailed below)
  Set ACL default folder group permissions
  sudo apt-get install acl
  sudo chmod 774 /..../FamilyPhotos
- getfacl -a /..../FamilyPhotos/ | setfacl -dR -M- /..../FamilyPhotos/
+ setfacl -dm u::rwx,g::rwx,o::r /..../FamilyPhotos/
+ 
+ And use the command "getfacl -a /..../FamilyPhotos/" to verify
 ```
 
 
-### 1.1 BtSync configuration:
+### BtSync configuration:
 
 Use these steps to setup Sync version 2.x.x
 [Official btsync packages ](http://blog.bittorrent.com/2016/02/18/official-linux-packages-for-sync-now-available/)
 
 For Arcbot setup
 
-1. Add btsync group to the current user. 
+1. Add btsync user to the current user group. 
 ```
 sudo usermod -a -G pi btsync
+
+Check with:
+groups pi
 ```
 
 2. Edit the Btsync config file "/etc/btsync/config.json" and edit lines as follows:
@@ -86,7 +109,7 @@ mobile device and add a new folder with the web GUI.
    6.6. Open the web GUI and Add the key with a folder location.
 
 
-### 1.3 Single File PHP Gallery: 
+### Single File PHP Gallery: 
 
 From [SFPG](http://sye.dk/sfpg/) this is a simple and powerful PHP script to view the synced photos with the browser.
 It is perfect as a light weight photo gallery tool.
@@ -99,8 +122,8 @@ For Arcbot and Btsync setup
   1. Create Symlink called "/images" towards the photos repository location and another one "_sfpg_data" 
   to a temporal folder with write permissions for the user www-data.
 ```  
-     "ln -s /images /..../Photos"
-     "ln -s /_sfpg_data /..../photoGalleryThumbs
+     ln -s /..../Photos images
+     ln -s /..../photoGalleryThumbs /_sfpg_data
 ```  
   2. Copy the "index.php" file to "/var/www/photos/"
   
@@ -123,4 +146,10 @@ For Arcbot and Btsync setup
   -rw-r--r-- 1 pi     www-data  70462 Apr  9 23:26 readme.txt
   lrwxrwxrwx 1 pi     www-data     32 Apr  9 23:26 _sfpg_data -> /..../photoGalleryThumbs/
 ```
+
+Setup a web serve instance service pages from /var/www
+
+i.e  [Lighttpd](https://help.ubuntu.com/community/lighttpd)
+
+These are basic steps for the Arcbot setup.
 
