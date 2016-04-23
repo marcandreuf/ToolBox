@@ -18,7 +18,7 @@ date instead.
 ``` 
 2. Copy toolsbar.jar with 
 ```
-wget https://github.com/marcandreuf/ToolBox/blob/master/out/artifacts/arcbot_jar/toolsbox.jar"
+wget "https://github.com/marcandreuf/ToolBox/blob/master/out/artifacts/arcbot_jar/toolsbox.jar"
 ```
 3. Give permissions 
 ```
@@ -44,9 +44,17 @@ i. Directly run with the command as follows:
 
 ii. Setup a background service. 
 
-1. Copy the init script "src/main/resources/scripts/arcbot-xxx" into /etc/init.d/
-2. Edit the file and replace xxx by the instance name 
-3. Setup the origin and destination folder locations
+1. Download 
+```
+wget "https://github.com/marcandreuf/ToolBox/blob/master/src/main/resources/scripts/arcbot-xxx"
+```
+2. Copy "arcbot-xxx" file into /etc/init.d/
+3. Edit the file and replace xxx by the instance name 
+4. Setup the origin and destination folder locations
+5. Enable the service
+```
+sudo update-rc.d arcbot-iphoneMare defaults
+```
 
 Notes:
 The origin folder should be the folder used with 'btsync' to sync photos from a mobile device.
@@ -72,8 +80,7 @@ For Arcbot setup
 1. Add btsync user to the current user group. 
 ```
 sudo usermod -a -G pi btsync
-
-Check with:
+#  Check with:
 groups pi
 ```
 
@@ -87,7 +94,6 @@ groups pi
     }
 NOTE: Add a password for the admin web GUI
 ```
-
 3. Restart the btsync service
 ```
 sudo service btsync restart
@@ -116,14 +122,16 @@ It is perfect as a light weight photo gallery tool.
 
 In "src/main/resources/photoGallery" there is a copy of this script with some adaptations for this Arcbot solution.
 All details for full detailed configuration is in the "src/main/resources/photoGallery"
+
+NOTE: !! **Check SQPG requirements** and use the test script to validate a correct installation. !!!
   
 For Arcbot and Btsync setup
 
   1. Create Symlink called "/images" towards the photos repository location and another one "_sfpg_data" 
   to a temporal folder with write permissions for the user www-data.
 ```  
-     ln -s /..../Photos images
-     ln -s /..../photoGalleryThumbs /_sfpg_data
+     sudo ln -s /..../Photos /images
+     sudo ln -s /..../photoGalleryThumbs /_sfpg_data
 ```  
   2. Copy the "index.php" file to "/var/www/photos/"
   
@@ -138,7 +146,7 @@ For Arcbot and Btsync setup
    define('SECURITY_PHRASE', 'xxxx');  
 ```
 
-  5. Review the "src/main/resources/photoGallery" for further configuration.
+  5. Arrange permissions so that www-data user can read and write and review the "src/main/resources/photoGallery" for further configuration.
 ```
   Example /var/www/photos configuration:
   lrwxrwxrwx 1 pi     www-data     34 Apr  9 23:26 images -> /..../Photos
@@ -150,6 +158,16 @@ For Arcbot and Btsync setup
 Setup a web serve instance service pages from /var/www
 
 i.e  [Lighttpd](https://help.ubuntu.com/community/lighttpd)
+Installation details: [Lighttpd installation](http://www.penguintutor.com/linux/light-webserver)
+
 
 These are basic steps for the Arcbot setup.
+
+
+### Required:
+
+#### JAVA8: 
+```
+sudo apt-get install openjdk-8-jdk
+```
 
