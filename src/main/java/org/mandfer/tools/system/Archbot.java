@@ -30,14 +30,16 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
  */
 public class Archbot {
 
-    public static final int MAX_READ_METADATA_ATTEPTS = 3;
+    private static final int MAX_READ_METADATA_ATTEPTS = 3;
     private static Logger logger = LoggerFactory.getLogger(Archbot.class);
-    private final WatchService watcher;
-    private final Path monitoredFolder;
-    private final Path archiveFolder;
+
+    private final Path originPath;
+    private final Path destinationPath;
     private final FileTypeValidator fileTypeValidator;
     private final StringFormatter stringFormatter;
-    private final WatchKey registeredKey;
+
+    private WatchService watcher;
+    private WatchKey registeredKey;
     private WatchKey key;
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
@@ -46,12 +48,37 @@ public class Archbot {
         return (WatchEvent<T>)event;
     }
 
+
+    public Archbot(String originPath, String destinationPath,
+                   FileTypeValidator fileTypeValidator, StringFormatter stringFormatter)
+            throws FileNotFoundException {
+        this.originPath = Paths.get(originPath);
+        this.destinationPath = Paths.get(destinationPath);
+        validatePaths();
+        this.fileTypeValidator = fileTypeValidator;
+        this.stringFormatter = stringFormatter;
+    }
+
+    private void validatePaths() throws FileNotFoundException {
+        if(!Files.exists(originPath)){
+            throw new FileNotFoundException(
+                    "Origin directory "+originPath+" is not a valid path.");
+        }
+        if(!Files.exists(destinationPath)){
+            throw new FileNotFoundException(
+                    "Destination directory "+destinationPath+" is not a valid path.");
+        }
+    }
+
     public static void main(String[] args) throws Exception {
-        if(args.length == 0 || args.length > 3){
+        if(args.length == 2){
+            new Archbot(args[0],
+                        args[1],
+                        new FileTypeValidatorRegExp(),
+                        new FormatterBasic()).processEvents();
+        }else{
             howToUseInfo();
         }
-        new Archbot(Paths.get(args[0]), Paths.get(args[1]),
-                new FileTypeValidatorRegExp(), new FormatterBasic()).processEvents();
     }
 
     private static void howToUseInfo(){
@@ -59,18 +86,10 @@ public class Archbot {
         System.exit(-1);
     }
 
-    private Archbot(Path monitoredFolder, Path archiveFolder,
-                    FileTypeValidator fileTypeValidator, StringFormatter stringFormatter) throws IOException {
-        this.monitoredFolder = monitoredFolder;
-        this.archiveFolder = archiveFolder;
-        this.fileTypeValidator = fileTypeValidator;
-        this.stringFormatter = stringFormatter;
-        this.watcher = FileSystems.getDefault().newWatchService();
-        registeredKey = this.monitoredFolder.register(watcher, ENTRY_CREATE);
-    }
-
-    private void processEvents() {
-        logger.info("Listening create events at "+monitoredFolder);
+    private void processEvents() throws IOException {
+        watcher = FileSystems.getDefault().newWatchService();
+        registeredKey = this.originPath.register(watcher, ENTRY_CREATE);
+        logger.info("Listening create events at "+ originPath);
 
         for(;;){
             logger.debug("---- Start processing events ----");
@@ -87,7 +106,7 @@ public class Archbot {
 
                         WatchEvent<Path> pathEvent = cast(event);
                         Path name = pathEvent.context();
-                        Path path = monitoredFolder.resolve(name);
+                        Path path = originPath.resolve(name);
                         logger.debug(event.kind().name() + ", " + path);
 
                         if(fileTypeValidator.isMediaType(path.getFileName().toString())) {
@@ -180,7 +199,7 @@ public class Archbot {
         String formattedMonth = stringFormatter.formatNumber(month, 2);
         String formattedDay = stringFormatter.formatNumber(day, 2);
 
-        return archiveFolder + File.separator +
+        return destinationPath + File.separator +
                 year + file.separator +
                 formattedMonth + file.separator +
                 formattedDay + file.separator +
