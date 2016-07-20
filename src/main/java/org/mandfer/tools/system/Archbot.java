@@ -27,6 +27,19 @@ import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 /**
  * Created by andreufm on 21/03/2016.
+ *
+ *
+ * TODOS:
+ *
+ * 1. Add OS and MetaDataExtractor all as constructor depenencies.
+ *
+ * 2. Create a ServiceFactory and encapsulate all system related dependencies.
+ *    OS, FileTypeValidator, StringFormatter, ....
+ *
+ * 3. Implement all java.io and java.nio static usages into OS dependency.
+ *
+ * //Note: remove all static dependencies.
+ *
  */
 public class Archbot {
 
@@ -109,9 +122,7 @@ public class Archbot {
                         Path path = originPath.resolve(name);
                         logger.debug(event.kind().name() + ", " + path);
 
-                        if(fileTypeValidator.isMediaType(path.getFileName().toString())) {
-                            archivePhoto(path.toFile());
-                        }
+                        archivePhoto(path);
                     }
                 }
             } catch (Exception e) {
@@ -155,14 +166,20 @@ public class Archbot {
         }
     }
 
-    private void archivePhoto(File file) throws ImageProcessingException, IOException, InterruptedException {
-        Metadata metadata = tryToReadMetadata(file);
-        Date date = getDateFromMetadataOrFile(file, metadata);
-        String destinationPath = calcDestinationDatePath(file, date);
-        move(file, destinationPath);
+    public void archivePhoto(Path pathFile) throws ImageProcessingException, IOException, InterruptedException {
+
+        File currentFile = pathFile.toFile();
+        if(fileTypeValidator.isMediaType(currentFile.getName())) {
+            Metadata metadata = tryToReadMetadata(currentFile);
+            Date date = getDateFromMetadataOrFile(currentFile, metadata);
+            String destinationPath = calcDestinationDatePath(currentFile, date);
+            move(currentFile, destinationPath);
+        }else{
+            logger.warn("Media type file not supported "+pathFile.getFileName().toString());
+        }
     }
 
-    private Metadata tryToReadMetadata(File file) throws InterruptedException {
+    public Metadata tryToReadMetadata(File file) throws InterruptedException {
         Metadata metadata = null;
         int attempts = 0;
         boolean isRead = false;
@@ -180,7 +197,32 @@ public class Archbot {
         return metadata;
     }
 
-    private void move(File file, String destinationPath) throws IOException {
+    public Date getDateFromMetadataOrFile(File file, Metadata metadata) throws IOException {
+        Date date = null;
+        if( metadata != null ){
+            Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+            if(directory != null) {
+                date = directory.getDate(ExifIFD0Directory.TAG_DATETIME);
+            }else{
+                logger.debug("File metadata does not have date: "+file);
+            }
+        }
+        if(date == null){
+            logger.debug( "There is no EXIF metadata for file " + file.getName() );
+            date = readFileCreationDate(file);
+        }
+        if(date == null){
+            throw new FileNotFoundException(
+                    "Metadata and File creation time not found for file "+file.getAbsolutePath());
+        }
+        return date;
+    }
+
+    public Date readFileCreationDate(File file) throws IOException {
+        return OS.readFileCreationDate(file);
+    }
+
+    public void move(File file, String destinationPath) throws IOException {
         Path origPath = file.toPath();
         Path destPath = FileSystems.getDefault().getPath(destinationPath);
         if(destPath.toFile().mkdirs()){
@@ -190,7 +232,7 @@ public class Archbot {
         logger.info("File moved from " + origPath + " to " + destPath);
     }
 
-    private String calcDestinationDatePath(File file, Date date) {
+    public String calcDestinationDatePath(File file, Date date) {
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
@@ -206,29 +248,5 @@ public class Archbot {
                 file.getName();
     }
 
-    private Date getDateFromMetadataOrFile(File file, Metadata metadata) throws IOException {
-        Date date = null;
-        if( metadata != null ){
-            Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-            if(directory != null) {
-                date = directory.getDate(ExifIFD0Directory.TAG_DATETIME);
-            }else{
-                logger.debug("File metadata does not have date: "+file);
-            }
-        }
-        if(date == null){
-            date = readFileCreationDate(file);
-        }
-        if(date == null){
-            throw new FileNotFoundException(
-                    "Metadata and File creation time not found for file "+file.getAbsolutePath());
-        }
-        return date;
-    }
 
-    private Date readFileCreationDate(File file) throws IOException {
-        logger.debug( "There is no EXIF metadata for file " + file.getName() );
-        BasicFileAttributes attib = Files.readAttributes(file.toPath(), BasicFileAttributes.class);
-        return new Date(attib.creationTime().toMillis());
-    }
 }
