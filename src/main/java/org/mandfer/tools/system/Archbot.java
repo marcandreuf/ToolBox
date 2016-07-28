@@ -7,6 +7,7 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import org.mandfer.tools.format.FormatterBasic;
 import org.mandfer.tools.format.StringFormatter;
+import org.mandfer.tools.guice.ToolsBoxFactory;
 import org.mandfer.tools.validation.FileTypeValidator;
 import org.mandfer.tools.validation.FileTypeValidatorRegExp;
 import org.slf4j.Logger;
@@ -16,7 +17,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.*;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -50,6 +50,7 @@ public class Archbot {
     private final Path destinationPath;
     private final FileTypeValidator fileTypeValidator;
     private final StringFormatter stringFormatter;
+    private final OS os;
 
     private WatchService watcher;
     private WatchKey registeredKey;
@@ -62,11 +63,13 @@ public class Archbot {
     }
 
 
-    public Archbot(String originPath, String destinationPath,
+    public Archbot(String originPath, String destinationPath, OS os,
                    FileTypeValidator fileTypeValidator, StringFormatter stringFormatter)
             throws FileNotFoundException {
         this.originPath = Paths.get(originPath);
         this.destinationPath = Paths.get(destinationPath);
+        this.os = os;
+
         validatePaths();
         this.fileTypeValidator = fileTypeValidator;
         this.stringFormatter = stringFormatter;
@@ -87,6 +90,7 @@ public class Archbot {
         if(args.length == 2){
             new Archbot(args[0],
                         args[1],
+                        ToolsBoxFactory.getInstance(OS.class),
                         new FileTypeValidatorRegExp(),
                         new FormatterBasic()).processEvents();
         }else{
@@ -170,7 +174,7 @@ public class Archbot {
 
         File currentFile = pathFile.toFile();
         if(fileTypeValidator.isMediaType(currentFile.getName())) {
-            Metadata metadata = tryToReadMetadata(currentFile);
+            Metadata metadata = attemptToReadMetadata(currentFile);
             Date date = getDateFromMetadataOrFile(currentFile, metadata);
             String destinationPath = calcDestinationDatePath(currentFile, date);
             move(currentFile, destinationPath);
@@ -179,7 +183,7 @@ public class Archbot {
         }
     }
 
-    public Metadata tryToReadMetadata(File file) throws InterruptedException {
+    public Metadata attemptToReadMetadata(File file) throws InterruptedException {
         Metadata metadata = null;
         int attempts = 0;
         boolean isRead = false;
@@ -219,7 +223,7 @@ public class Archbot {
     }
 
     public Date readFileCreationDate(File file) throws IOException {
-        return OS.readFileCreationDate(file);
+        return this.os.readFileCreationDate(file);
     }
 
     public void move(File file, String destinationPath) throws IOException {

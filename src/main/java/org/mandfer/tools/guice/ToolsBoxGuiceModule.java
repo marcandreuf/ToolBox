@@ -4,6 +4,7 @@ package org.mandfer.tools.guice;
 import com.google.inject.AbstractModule;
 import org.mandfer.tools.config.ConfigLoader;
 import org.mandfer.tools.config.DefaultsConfigLoader;
+import org.mandfer.tools.system.OS;
 
 /**
  * Guice technology configuration module class for commons package.
@@ -17,6 +18,8 @@ public class ToolsBoxGuiceModule extends AbstractModule {
 
         // PropertiesLoader constructor dependency
         bind(ConfigLoader.class).to(DefaultsConfigLoader.class);
+
+        bind(OS.class).to(OS.class);
 
 
 //        bind(DomLoader.class).to(W3CDOMLoader.class).in(Singleton.class);
