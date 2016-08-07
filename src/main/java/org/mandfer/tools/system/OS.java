@@ -3,7 +3,9 @@ package org.mandfer.tools.system;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
+import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.drew.metadata.exif.ExifSubIFDDirectory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,27 +46,23 @@ public class OS {
         return metadata;
     }
 
-    public Date getImageCreationTime(File file) throws InterruptedException, IOException {
+
+    public Date getImageExifCreationTime(Metadata metadata) throws InterruptedException, IOException {
         Date date = null;
 
-        Metadata metadata = getImageMetadata(file);
+        Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
+        if(exifIFD0Directory != null) {
+            date = exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME);
+        }
 
-        if( metadata != null ){
-            Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-            if(directory != null) {
-                date = directory.getDate(ExifIFD0Directory.TAG_DATETIME);
+        if(date == null){
+            ExifSubIFDDirectory exifSubIFDDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
+            if(exifSubIFDDirectory != null) {
+                date = exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
+                if(date == null){
+                    date = exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_DIGITIZED);
+                }
             }
-        }
-
-        if(date == null){
-            logger.debug("File metadata ExifIFD0Directory not found: "+file
-                    +". Reading file creation time instead");
-            date = readFileCreationDate(file);
-        }
-
-        if(date == null){
-            throw new FileNotFoundException(
-                    "Metadata and File creation time not found for file "+file.getAbsolutePath());
         }
 
         return date;

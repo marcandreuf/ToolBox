@@ -1,5 +1,6 @@
 package org.mandfer.tools.system;
 
+import com.drew.imaging.ImageProcessingException;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +25,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.Date;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -42,6 +44,7 @@ public class ArchbotTest {
     private String sampleOrigin;
     private String sampleDest;
     private OS mock_Os;
+    private Path mocked_Path;
     private FileTypeValidator mock_fileTypeValidator;
     private StringFormatter mock_stringFormatter;
 
@@ -53,15 +56,16 @@ public class ArchbotTest {
         sampleOrigin = System.getProperty("user.home");
         sampleDest = System.getProperty("user.dir");
         mock_Os = mock(OS.class);
+        mocked_Path = mock(Path.class);
         mock_fileTypeValidator = mock(FileTypeValidator.class);
         mock_stringFormatter = mock(StringFormatter.class);
+        archbot = new Archbot( sampleOrigin, sampleDest, mock_Os, mock_fileTypeValidator, mock_stringFormatter);
     }
 
     @Test
     public void testValidPathsArchbotInstantiation() throws FileNotFoundException {
-        archbot = new Archbot( sampleOrigin, sampleDest, mock_Os, mock_fileTypeValidator, mock_stringFormatter);
+        assertTrue(archbot != null);
     }
-
 
     @Test(expected = FileNotFoundException.class)
     public void testNonValidOriginPathArchbotInstantiation() throws FileNotFoundException {
@@ -73,6 +77,21 @@ public class ArchbotTest {
     public void testNonValidDestinationPathArchbotInstantiation() throws FileNotFoundException {
         sampleDest = "NonValidpath";
         archbot = new Archbot( sampleOrigin, sampleDest, mock_Os, mock_fileTypeValidator, mock_stringFormatter);
+    }
+
+
+    //TODO TCs of different paths of archivePhoto method.
+
+    @Test
+    public void testArchivePhoto() throws Exception {
+
+
+        //TODO: prepare OS interactions.
+
+        //archbot.archivePhoto(mocked_Path);
+
+        //TODO: verify OS interactions.
+
     }
 
 }
