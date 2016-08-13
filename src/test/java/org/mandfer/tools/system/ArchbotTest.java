@@ -43,6 +43,7 @@ public class ArchbotTest {
 
     private String sampleOrigin;
     private String sampleDest;
+    private String sampleFailed;
     private OS mock_Os;
     private Path mocked_Path;
     private FileTypeValidator mock_fileTypeValidator;
@@ -55,11 +56,12 @@ public class ArchbotTest {
 
         sampleOrigin = System.getProperty("user.home");
         sampleDest = System.getProperty("user.dir");
+        sampleFailed = System.getProperty("user.dir")+"/failed";
         mock_Os = mock(OS.class);
         mocked_Path = mock(Path.class);
         mock_fileTypeValidator = mock(FileTypeValidator.class);
         mock_stringFormatter = mock(StringFormatter.class);
-        archbot = new Archbot( sampleOrigin, sampleDest, mock_Os, mock_fileTypeValidator, mock_stringFormatter);
+        archbot = new Archbot( sampleOrigin, sampleDest, sampleFailed, mock_Os, mock_fileTypeValidator, mock_stringFormatter);
     }
 
     @Test
@@ -70,13 +72,13 @@ public class ArchbotTest {
     @Test(expected = FileNotFoundException.class)
     public void testNonValidOriginPathArchbotInstantiation() throws FileNotFoundException {
         sampleOrigin = "NonValidpath";
-        archbot = new Archbot( sampleOrigin, sampleDest, mock_Os, mock_fileTypeValidator, mock_stringFormatter);
+        archbot = new Archbot( sampleOrigin, sampleDest, sampleFailed, mock_Os, mock_fileTypeValidator, mock_stringFormatter);
     }
 
     @Test(expected = FileNotFoundException.class)
     public void testNonValidDestinationPathArchbotInstantiation() throws FileNotFoundException {
         sampleDest = "NonValidpath";
-        archbot = new Archbot( sampleOrigin, sampleDest, mock_Os, mock_fileTypeValidator, mock_stringFormatter);
+        archbot = new Archbot( sampleOrigin, sampleDest, sampleFailed, mock_Os, mock_fileTypeValidator, mock_stringFormatter);
     }
 
 

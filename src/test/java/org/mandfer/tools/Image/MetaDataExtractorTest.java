@@ -9,6 +9,8 @@ import com.drew.metadata.exif.ExifDirectoryBase;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,12 +22,16 @@ import java.util.Date;
  */
 public class MetaDataExtractorTest {
 
+    private static Logger logger = LoggerFactory.getLogger(MetaDataExtractorTest.class);
+
     @Test
     @Ignore //Learning test
     public void testReadImageDate() throws ImageProcessingException, IOException {
 
         File sampleImage = new File("src/test/resources/adobeJpeg1.jpg");
         Metadata metadata = ImageMetadataReader.readMetadata(sampleImage);
+
+
 
         //print(metadata);
         Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class );

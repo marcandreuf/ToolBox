@@ -1,6 +1,7 @@
 package org.mandfer.tools.system;
 
 import com.drew.imaging.ImageMetadataReader;
+import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
@@ -29,7 +30,7 @@ public class OS {
         return new Date(attib.creationTime().toMillis());
     }
 
-    public Metadata getImageMetadata(File file) throws InterruptedException {
+    public Metadata getImageMetadata(File file) throws ImageProcessingException {
         Metadata metadata = null;
         int attempts = 0;
         do{
@@ -39,15 +40,29 @@ public class OS {
                 break;
             }catch (Throwable t){
                 logger.debug("wait 500", t);
-                Thread.sleep(500);
+                sleep(500);
             }
             attempts ++;
         }while (attempts <= MAX_READ_METADATA_ATTEPTS);
-        return metadata;
+
+        if(metadata != null){
+            return metadata;
+        }else{
+            throw new ImageProcessingException("No metadata found for file: "+file.getAbsolutePath());
+        }
+
+    }
+
+    private void sleep(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+            logger.debug(e.getMessage(), e);
+        }
     }
 
 
-    public Date getImageExifCreationTime(Metadata metadata) throws InterruptedException, IOException {
+    public Date getImageExifCreationTime(Metadata metadata) throws ImageProcessingException {
         Date date = null;
 
         Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
@@ -65,7 +80,12 @@ public class OS {
             }
         }
 
-        return date;
+        if(date != null){
+            return date;
+        }else{
+            throw new ImageProcessingException("Exif creation date not found.");
+        }
+
     }
 
 

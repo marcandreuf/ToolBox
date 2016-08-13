@@ -1,10 +1,7 @@
 package org.mandfer.tools.system;
 
-import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifIFD0Directory;
 import org.mandfer.tools.format.FormatterBasic;
 import org.mandfer.tools.format.StringFormatter;
 import org.mandfer.tools.guice.ToolsBoxFactory;
@@ -48,6 +45,7 @@ public class Archbot {
 
     private final Path originPath;
     private final Path destinationPath;
+    private final Path failedPath;
     private final FileTypeValidator fileTypeValidator;
     private final StringFormatter stringFormatter;
     private final OS os;
@@ -63,18 +61,20 @@ public class Archbot {
     }
 
 
-    public Archbot(String originPath, String destinationPath, OS os,
+    public Archbot(String originPath, String destinationPath, String failedPath, OS os,
                    FileTypeValidator fileTypeValidator, StringFormatter stringFormatter)
             throws FileNotFoundException {
-        this.originPath = Paths.get(originPath);
+        this.originPath = Paths.get(originPath); //os.validatePath(originPath)
         this.destinationPath = Paths.get(destinationPath);
+        this.failedPath = Paths.get(failedPath);
         this.os = os;
 
         validatePaths();
-        this.fileTypeValidator = fileTypeValidator;
+        this.fileTypeValidator = fileTypeValidator;  //TODO: move to OS
         this.stringFormatter = stringFormatter;
     }
 
+    //TODO: Move to OS, return the path if it is correct.
     private void validatePaths() throws FileNotFoundException {
         if(!Files.exists(originPath)){
             throw new FileNotFoundException(
@@ -90,18 +90,21 @@ public class Archbot {
         if(args.length == 2){
             new Archbot(args[0],
                         args[1],
+                        args[2],
                         ToolsBoxFactory.getInstance(OS.class),
                         new FileTypeValidatorRegExp(),
-                        new FormatterBasic()).processEvents();
+                        new FormatterBasic())
+                    .processEvents();
         }else{
             howToUseInfo();
         }
     }
 
     private static void howToUseInfo(){
-        logger.info("Usage: java -jar ToolBox \"MonitoringPath\" \"ArchivingPath\" ");
+        logger.info("Usage: java -jar ToolBox \"MonitoringPath\" \"ArchivingPath\" \"FailedPath\" ");
         System.exit(-1);
     }
+
 
     private void processEvents() throws IOException {
         watcher = FileSystems.getDefault().newWatchService();
@@ -126,7 +129,15 @@ public class Archbot {
                         Path path = originPath.resolve(name);
                         logger.debug(event.kind().name() + ", " + path);
 
-                        archivePhoto(path);
+
+                        //TODO: SentFileToProcess(path).start() thread to send valid files to a queue
+                        // if is media type file then add Path to the queue
+                        // else move file to a backup location
+                        try {
+                            archivePhoto(path);
+                        }catch (Throwable t){
+                            logger.debug(t.getMessage(), t);
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -166,66 +177,55 @@ public class Archbot {
             key = watcher.take();
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);
-            throw new Exception("Whatcher key not found.");
+            throw new Exception("Watcher key not found.");
         }
     }
 
-    public void archivePhoto(Path pathFile) throws ImageProcessingException, IOException, InterruptedException {
-
+    //TODO: new thread to archive a file. Consumer of the queue
+    public void archivePhoto(Path pathFile) {
+        String fileDestinationPath;
         File currentFile = pathFile.toFile();
+
         if(fileTypeValidator.isMediaType(currentFile.getName())) {
-            Metadata metadata = attemptToReadMetadata(currentFile);
-            Date date = getDateFromMetadataOrFile(currentFile, metadata);
-            String destinationPath = calcDestinationDatePath(currentFile, date);
-            move(currentFile, destinationPath);
+
+            try {
+                Date date = findCreationDate(currentFile);
+                fileDestinationPath = calcDestinationDatePath(currentFile, date);
+            } catch (Exception e) {
+                logger.debug("Moving file "+currentFile.getAbsolutePath()+" to backup folder.");
+                fileDestinationPath = failedPath.toString();
+            }
+
+            try {
+                move(currentFile, fileDestinationPath);
+            } catch (IOException e) {
+                logger.debug("Error moving file: "+currentFile.getAbsolutePath()+": "+e.getMessage(), e);
+            }
+
         }else{
             logger.warn("Media type file not supported "+pathFile.getFileName().toString());
         }
     }
 
-    public Metadata attemptToReadMetadata(File file) throws InterruptedException {
-        Metadata metadata = null;
-        int attempts = 0;
-        boolean isRead = false;
-        do{
-            try{
-                logger.debug("Try to read file " + file.getAbsolutePath());
-                metadata = ImageMetadataReader.readMetadata(file);
-                isRead = true;
-            }catch (Throwable t){
-                logger.debug("wait 500", t);
-                Thread.sleep(500);
-            }
-            attempts ++;
-        }while (isRead == false && attempts <= MAX_READ_METADATA_ATTEPTS);
-        return metadata;
-    }
 
-    public Date getDateFromMetadataOrFile(File file, Metadata metadata) throws IOException {
-        Date date = null;
-        if( metadata != null ){
-            Directory directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-            if(directory != null) {
-                date = directory.getDate(ExifIFD0Directory.TAG_DATETIME);
-            }else{
-                logger.debug("File metadata does not have date: "+file);
+    private Date findCreationDate(File currentFile) throws Exception {
+        Date date;
+        try {
+            Metadata metadata = os.getImageMetadata(currentFile);
+            date = os.getImageExifCreationTime(metadata);
+        } catch (ImageProcessingException e) {
+            try {
+                logger.debug( "There is no EXIF metadata for file " + currentFile.getName() );
+                date = os.readFileCreationDate(currentFile);
+            } catch (IOException e1) {
+                throw new Exception("File "+currentFile+" does not have creation date.");
             }
-        }
-        if(date == null){
-            logger.debug( "There is no EXIF metadata for file " + file.getName() );
-            date = readFileCreationDate(file);
-        }
-        if(date == null){
-            throw new FileNotFoundException(
-                    "Metadata and File creation time not found for file "+file.getAbsolutePath());
         }
         return date;
     }
 
-    public Date readFileCreationDate(File file) throws IOException {
-        return this.os.readFileCreationDate(file);
-    }
 
+    //TODO: move function to OS
     public void move(File file, String destinationPath) throws IOException {
         Path origPath = file.toPath();
         Path destPath = FileSystems.getDefault().getPath(destinationPath);
@@ -236,6 +236,8 @@ public class Archbot {
         logger.info("File moved from " + origPath + " to " + destPath);
     }
 
+    //TODO: move function to OS
+    //TODO: Destination PathBuilder based on given pattern. MMM-yyyy, dd-MMM-yyyy, yyyy.
     public String calcDestinationDatePath(File file, Date date) {
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         int year = localDate.getYear();
