@@ -4,7 +4,6 @@ import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.MetadataException;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
 import org.slf4j.Logger;
@@ -14,6 +13,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Date;
 
@@ -88,5 +89,26 @@ public class OS {
 
     }
 
+    public Path getPath(String strPath){
+        return Paths.get(strPath);
+    }
+
+    public void checkIsDirectory(Path path) throws FileNotFoundException {
+        if(!Files.isDirectory(path)){
+            throw new FileNotFoundException("Path "+path.toFile().getName()+" is not a directory.");
+        }
+    }
+
+    public void checkIsReadable(Path path) throws FileNotFoundException {
+        if(!Files.isReadable(path)){
+            throw new FileNotFoundException("Path "+path.toFile().getName()+" is not a readable directory.");
+        }
+    }
+
+    public void checkIsWritable(Path path) throws FileNotFoundException {
+        if(!Files.isWritable(path)){
+            throw new FileNotFoundException("Path "+path.toFile().getName()+" is not a writable directory.");
+        }
+    }
 
 }

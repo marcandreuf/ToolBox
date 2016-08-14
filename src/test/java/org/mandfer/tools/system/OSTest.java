@@ -16,6 +16,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -44,6 +45,7 @@ public class OSTest {
     private File mocked_file;
     private Path mocked_path;
     private OS os;
+    private String sampleFileName = "sampleFileName";
 
 
     @Rule
@@ -198,13 +200,82 @@ public class OSTest {
         expectedException.expect(ImageProcessingException.class);
         expectedException.expectMessage(containsString("Exif creation date not found."));
 
-        Date date = os.getImageExifCreationTime(mocked_metadata);
+        os.getImageExifCreationTime(mocked_metadata);
 
         verify(mocked_metadata).getFirstDirectoryOfType(ExifIFD0Directory.class);
         verify(mocked_exifIFD0Directory).getDate(ExifIFD0Directory.TAG_DATETIME);
         verify(mocked_metadata).getFirstDirectoryOfType(ExifSubIFDDirectory.class);
         verify(mocked_exifSubIFDDirectory).getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
         verify(mocked_exifSubIFDDirectory).getDate(ExifSubIFDDirectory.TAG_DATETIME_DIGITIZED);
+    }
+
+
+    @Test
+    public void testCheckIsDirectory() throws FileNotFoundException {
+        when(Files.isDirectory(mocked_path)).thenReturn(true);
+
+        os.checkIsDirectory(mocked_path);
+
+        PowerMockito.verifyStatic();
+        Files.isDirectory(mocked_path);
+    }
+
+
+    @Test
+    public void failedTestCheckIsDirectory() throws FileNotFoundException {
+        when(mocked_file.getName()).thenReturn(sampleFileName);
+        when(mocked_path.toFile()).thenReturn(mocked_file);
+        when(Files.isDirectory(mocked_path)).thenReturn(false);
+        expectedException.expect(FileNotFoundException.class);
+        expectedException.expectMessage(containsString("Path "+sampleFileName+" is not a directory."));
+
+        os.checkIsDirectory(mocked_path);
+    }
+
+
+    @Test
+    public void testCheckIsReadable() throws FileNotFoundException {
+        when(Files.isReadable(mocked_path)).thenReturn(true);
+
+        os.checkIsReadable(mocked_path);
+
+        PowerMockito.verifyStatic();
+        Files.isReadable(mocked_path);
+    }
+
+
+    @Test
+    public void failedTestCheckIsReadable() throws FileNotFoundException {
+        when(mocked_file.getName()).thenReturn(sampleFileName);
+        when(mocked_path.toFile()).thenReturn(mocked_file);
+        when(Files.isDirectory(mocked_path)).thenReturn(false);
+        expectedException.expect(FileNotFoundException.class);
+        expectedException.expectMessage(containsString("Path "+sampleFileName+" is not a readable directory."));
+
+        os.checkIsReadable(mocked_path);
+    }
+
+
+    @Test
+    public void testCheckIsWritable() throws FileNotFoundException {
+        when(Files.isWritable(mocked_path)).thenReturn(true);
+
+        os.checkIsWritable(mocked_path);
+
+        PowerMockito.verifyStatic();
+        Files.isWritable(mocked_path);
+    }
+
+
+    @Test
+    public void failedTestCheckIsWritable() throws FileNotFoundException {
+        when(mocked_file.getName()).thenReturn(sampleFileName);
+        when(mocked_path.toFile()).thenReturn(mocked_file);
+        when(Files.isDirectory(mocked_path)).thenReturn(false);
+        expectedException.expect(FileNotFoundException.class);
+        expectedException.expectMessage(containsString("Path "+sampleFileName+" is not a writable directory."));
+
+        os.checkIsWritable(mocked_path);
     }
 
 

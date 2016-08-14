@@ -64,26 +64,25 @@ public class Archbot {
     public Archbot(String originPath, String destinationPath, String failedPath, OS os,
                    FileTypeValidator fileTypeValidator, StringFormatter stringFormatter)
             throws FileNotFoundException {
-        this.originPath = Paths.get(originPath); //os.validatePath(originPath)
-        this.destinationPath = Paths.get(destinationPath);
-        this.failedPath = Paths.get(failedPath);
         this.os = os;
-
+        this.originPath = os.getPath(originPath);
+        this.destinationPath = os.getPath(destinationPath);
+        this.failedPath = os.getPath(failedPath);
         validatePaths();
         this.fileTypeValidator = fileTypeValidator;  //TODO: move to OS
         this.stringFormatter = stringFormatter;
     }
 
-    //TODO: Move to OS, return the path if it is correct.
     private void validatePaths() throws FileNotFoundException {
-        if(!Files.exists(originPath)){
-            throw new FileNotFoundException(
-                    "Origin directory "+originPath+" is not a valid path.");
-        }
-        if(!Files.exists(destinationPath)){
-            throw new FileNotFoundException(
-                    "Destination directory "+destinationPath+" is not a valid path.");
-        }
+            os.checkIsDirectory(originPath);
+            os.checkIsDirectory(destinationPath);
+            os.checkIsDirectory(failedPath);
+            os.checkIsReadable(originPath);
+            os.checkIsReadable(destinationPath);
+            os.checkIsReadable(failedPath);
+            os.checkIsWritable(originPath);
+            os.checkIsWritable(destinationPath);
+            os.checkIsWritable(failedPath);
     }
 
     public static void main(String[] args) throws Exception {
