@@ -22,13 +22,7 @@ public class FileTypeValidatorRegExp implements FileTypeValidator {
         pattern = Pattern.compile(IMAGE_PATTERN);
     }
 
-    /**
-     * Validate that the extension of the file name is a media type file.
-     * @param fileName fileName for validation
-     * @return true valid fileName, false invalid fileName
-     */
     public boolean isMediaType(final String fileName){
-
         matcher = pattern.matcher(fileName);
         return matcher.matches();
 

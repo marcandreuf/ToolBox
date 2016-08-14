@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mandfer.tools.format.StringFormatter;
+import org.mandfer.tools.guice.ToolsBoxFactory;
 import org.mandfer.tools.validation.FileTypeValidator;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
@@ -16,18 +17,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
-import java.nio.file.*;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 /**
  * Created by coder on 17/05/16.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Paths.class})
+@PrepareForTest({Paths.class, FileSystems.class, ToolsBoxFactory.class})
 public class ArchbotTest {
 
     private static Logger logger = LoggerFactory.getLogger(ArchbotTest.class);
@@ -48,6 +50,7 @@ public class ArchbotTest {
     public void setUP() throws FileNotFoundException {
         PowerMockito.mockStatic(Paths.class);
         PowerMockito.mockStatic(FileSystems.class);
+        PowerMockito.mockStatic(ToolsBoxFactory.class);
 
         sampleOrigin = System.getProperty("user.home");
         sampleDest = System.getProperty("user.dir");
@@ -56,11 +59,15 @@ public class ArchbotTest {
         mocked_Path = mock(Path.class);
         mock_fileTypeValidator = mock(FileTypeValidator.class);
         mock_stringFormatter = mock(StringFormatter.class);
+
+        PowerMockito.when(ToolsBoxFactory.getInstance(OS.class)).thenReturn(mock_Os);
+        PowerMockito.when(ToolsBoxFactory.getInstance(FileTypeValidator.class)).thenReturn(mock_fileTypeValidator);
+        PowerMockito.when(ToolsBoxFactory.getInstance(StringFormatter.class)).thenReturn(mock_stringFormatter);
     }
 
     @Test
     public void testValidPathsArchbotInstantiation() throws FileNotFoundException {
-        archbot = new Archbot( sampleOrigin, sampleDest, sampleFailed, mock_Os, mock_fileTypeValidator, mock_stringFormatter);
+        archbot = new Archbot(sampleOrigin, sampleDest, sampleFailed);
 
         assertTrue(archbot != null);
         verify(mock_Os).getPath(sampleOrigin);
@@ -74,27 +81,9 @@ public class ArchbotTest {
     @Test
     public void testNonValidPathArchbotInstantiation() throws FileNotFoundException {
         expectedException.expect(FileNotFoundException.class);
-        expectedException.expectMessage(containsString(sampleOrigin));
-        sampleOrigin = "NonValidpath";
         when(mock_Os.getPath(Mockito.anyString())).thenReturn(mocked_Path);
-        doThrow(FileNotFoundException.class).when(mock_Os).checkIsDirectory(mocked_Path);
-
-        archbot = new Archbot( sampleOrigin, sampleDest, sampleFailed, mock_Os, mock_fileTypeValidator, mock_stringFormatter);
-
-    }
-
-
-    //TODO TCs of different paths of archivePhoto method.
-    @Test
-    @Ignore
-    public void testArchivePhoto() throws Exception {
-
-
-        //TODO: prepare OS interactions.
-
-        //archbot.archivePhoto(mocked_Path);
-
-        //TODO: verify OS interactions.
+        PowerMockito.doThrow(new FileNotFoundException()).when(mock_Os).checkIsDirectory(mocked_Path);
+        archbot = new Archbot( "NonValidpath", sampleDest, sampleFailed);
 
     }
 

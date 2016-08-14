@@ -2,11 +2,9 @@ package org.mandfer.tools.system;
 
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
-import org.mandfer.tools.format.FormatterBasic;
 import org.mandfer.tools.format.StringFormatter;
 import org.mandfer.tools.guice.ToolsBoxFactory;
 import org.mandfer.tools.validation.FileTypeValidator;
-import org.mandfer.tools.validation.FileTypeValidatorRegExp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,16 +59,15 @@ public class Archbot {
     }
 
 
-    public Archbot(String originPath, String destinationPath, String failedPath, OS os,
-                   FileTypeValidator fileTypeValidator, StringFormatter stringFormatter)
-            throws FileNotFoundException {
-        this.os = os;
+    public Archbot(String originPath, String destinationPath, String failedPath) throws FileNotFoundException {
+        this.os = ToolsBoxFactory.getInstance(OS.class);
+        this.fileTypeValidator = ToolsBoxFactory.getInstance(FileTypeValidator.class);
+        this.stringFormatter = ToolsBoxFactory.getInstance(StringFormatter.class);
+
         this.originPath = os.getPath(originPath);
         this.destinationPath = os.getPath(destinationPath);
         this.failedPath = os.getPath(failedPath);
         validatePaths();
-        this.fileTypeValidator = fileTypeValidator;  //TODO: move to OS
-        this.stringFormatter = stringFormatter;
     }
 
     private void validatePaths() throws FileNotFoundException {
@@ -86,14 +83,8 @@ public class Archbot {
     }
 
     public static void main(String[] args) throws Exception {
-        if(args.length == 2){
-            new Archbot(args[0],
-                        args[1],
-                        args[2],
-                        ToolsBoxFactory.getInstance(OS.class),
-                        new FileTypeValidatorRegExp(),
-                        new FormatterBasic())
-                    .processEvents();
+        if(args.length == 3){
+            new Archbot(args[0], args[1], args[2]).processEvents();
         }else{
             howToUseInfo();
         }
@@ -131,7 +122,7 @@ public class Archbot {
 
                         //TODO: SentFileToProcess(path).start() thread to send valid files to a queue
                         // if is media type file then add Path to the queue
-                        // else move file to a backup location
+                        // else moveFileTo file to a backup location
                         try {
                             archivePhoto(path);
                         }catch (Throwable t){
@@ -180,37 +171,35 @@ public class Archbot {
         }
     }
 
+    //TODO implement UTs when all method dependencies has been extracted.
     //TODO: new thread to archive a file. Consumer of the queue
-    public void archivePhoto(Path pathFile) {
-        String fileDestinationPath;
-        File currentFile = pathFile.toFile();
-
-        if(fileTypeValidator.isMediaType(currentFile.getName())) {
-
+    public void archivePhoto(Path pathFile) throws IOException {
+        if(fileTypeValidator.isMediaType(pathFile.toFile().getName())) {
             try {
-                Date date = findCreationDate(currentFile);
-                fileDestinationPath = calcDestinationDatePath(currentFile, date);
+                Date date = findCreationDate(pathFile);
+                String fileDestinationPath = calcDestinationDatePath(pathFile, date);
+                moveFileTo(pathFile, fileDestinationPath);
             } catch (Exception e) {
-                logger.debug("Moving file "+currentFile.getAbsolutePath()+" to backup folder.");
-                fileDestinationPath = failedPath.toString();
+                logger.debug(e.getMessage(), e);
+                moveFileToBackup(pathFile);
             }
-
-            try {
-                move(currentFile, fileDestinationPath);
-            } catch (IOException e) {
-                logger.debug("Error moving file: "+currentFile.getAbsolutePath()+": "+e.getMessage(), e);
-            }
-
         }else{
             logger.warn("Media type file not supported "+pathFile.getFileName().toString());
+            moveFileToBackup(pathFile);
         }
     }
 
+    private void moveFileToBackup(Path filePath) throws IOException {
+        logger.debug("Moving file "+filePath+" to backup folder.");
+        moveFileTo(filePath, failedPath.toString());
+    }
 
-    private Date findCreationDate(File currentFile) throws Exception {
+    //TODO move to OS and implement UTs
+    public Date findCreationDate(Path filePath) throws Exception {
+        File currentFile = filePath.toFile();
         Date date;
         try {
-            Metadata metadata = os.getImageMetadata(currentFile);
+            Metadata metadata = os.getImageMetadata(filePath.toFile());
             date = os.getImageExifCreationTime(metadata);
         } catch (ImageProcessingException e) {
             try {
@@ -224,9 +213,8 @@ public class Archbot {
     }
 
 
-    //TODO: move function to OS
-    public void move(File file, String destinationPath) throws IOException {
-        Path origPath = file.toPath();
+    //TODO: moveFileTo function to OS and implement UTs
+    public void moveFileTo(Path origPath, String destinationPath) throws IOException {
         Path destPath = FileSystems.getDefault().getPath(destinationPath);
         if(destPath.toFile().mkdirs()){
             logger.debug("New path created "+destPath.getParent());
@@ -235,9 +223,9 @@ public class Archbot {
         logger.info("File moved from " + origPath + " to " + destPath);
     }
 
-    //TODO: move function to OS
+    //TODO: moveFileTo function to OS and implement UTs
     //TODO: Destination PathBuilder based on given pattern. MMM-yyyy, dd-MMM-yyyy, yyyy.
-    public String calcDestinationDatePath(File file, Date date) {
+    public String calcDestinationDatePath(Path filePath, Date date) {
         LocalDate localDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         int year = localDate.getYear();
         int month = localDate.getMonthValue();
@@ -247,10 +235,10 @@ public class Archbot {
         String formattedDay = stringFormatter.formatNumber(day, 2);
 
         return destinationPath + File.separator +
-                year + file.separator +
-                formattedMonth + file.separator +
-                formattedDay + file.separator +
-                file.getName();
+                year + File.separator +
+                formattedMonth + File.separator +
+                formattedDay + File.separator +
+                filePath.toFile().getName();
     }
 
 

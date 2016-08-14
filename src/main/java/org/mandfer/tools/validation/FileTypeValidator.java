@@ -5,5 +5,11 @@ package org.mandfer.tools.validation;
  */
 public interface FileTypeValidator {
 
-    public boolean isMediaType(String imageFileName);
+    /**
+     * Validate that the extension of the file name is a media type file.
+     *
+     * @param imageFileName fileName for validation
+     * @return true valid fileName, false invalid fileName
+     */
+    boolean isMediaType(String imageFileName);
 }
