@@ -6,6 +6,9 @@ import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 
@@ -34,6 +37,14 @@ public class DateUtils {
 
     public String printFormatted(DateTime datetime, String pattern, Locale locale) {
         return datetime.toString(pattern, locale);
+    }
+
+    public String getShortMonth(DateTime sampleDate, Locale locale) {
+        return sampleDate.monthOfYear().getAsShortText(locale);
+    }
+
+    public DateTime createJodaDateTime(Date date) {
+        return new DateTime(date);
     }
 
 }

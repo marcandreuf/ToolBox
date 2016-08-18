@@ -2,6 +2,8 @@ package org.mandfer.tools.utils;
 
 
 import org.joda.time.*;
+import org.joda.time.LocalDate;
+import org.joda.time.Period;
 import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -9,8 +11,13 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.SimpleDateFormat;
+import java.time.*;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mandfer.tools.utils.DateUtils.DEFAULT_LONG_DATE_FORMAT;
 import static org.mandfer.tools.utils.DateUtils.DEFAULT_SHORT_DATE_FORMAT;
@@ -131,6 +138,27 @@ public class DateUtilsTest {
         String printedDate = dateUtils.printFormatted(sampleDate, DEFAULT_SHORT_DATE_FORMAT, Locale.ENGLISH);
 
         assertTrue("Expected: 26 Aug 2013 of actual value " + printedDate, printedDate.equalsIgnoreCase("26 Aug 2013"));
+    }
+
+
+    @Test
+    public void testGetMonthFromDateTime() {
+        DateTime sampleDate = new DateTime(2013, 8, 26, 0, 0, 0);
+        String month = dateUtils.getShortMonth(sampleDate, Locale.ENGLISH);
+        assertEquals("Aug", month);
+        month = dateUtils.getShortMonth(sampleDate, new Locale("es", "ES"));
+        assertEquals("ago", month);
+    }
+
+    @Test
+    public void testTransformJavaDateToJodaTime(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2009, Calendar.FEBRUARY, 20);
+        Date date = calendar.getTime();
+
+        DateTime dateTime = dateUtils.createJodaDateTime(date);
+
+        assertEquals(2, dateTime.getMonthOfYear());
     }
 
 
