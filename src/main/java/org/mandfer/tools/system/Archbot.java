@@ -15,12 +15,13 @@ import java.nio.file.*;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
-
+/**
+ * Created by marcandreuf on 21/08/16.
+ */
 public class Archbot {
 
     private static Logger logger = LoggerFactory.getLogger(Archbot.class);
 
-    private final FileTypeValidator fileTypeValidator = ToolsBoxFactory.getInstance(FileTypeValidator.class);
     private final OS os = ToolsBoxFactory.getInstance(OS.class);
 
     private final Path originPath;
@@ -38,6 +39,7 @@ public class Archbot {
     }
 
 
+    //TODO: Move paths to start method and add MediaService as dependnecy.
     public Archbot(String originPath, String destinationPath, String failedPath) throws FileNotFoundException {
         this.originPath = os.getPath(originPath);
         this.destinationPath = os.getPath(destinationPath);
@@ -165,7 +167,7 @@ public class Archbot {
 
     //TODO: new thread to archive a file. Consumer of the queue
     public void archivePhoto(Path pathFile) throws IOException {
-        if(fileTypeValidator.isMediaType(pathFile.toFile().getName())) {
+        if(os.isImageFile(pathFile)) {
             try {
                 DateTime dateTime = findCreationDate(pathFile);
                 Path relativePath = os.calcDateRelPath(pathFile, dateTime);

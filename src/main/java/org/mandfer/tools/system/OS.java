@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Created by andreufm on 19/07/2016.
+ * Created by marcandreuf on 19/07/2016.
  */
 public class OS {
     private static final int MAX_READ_METADATA_ATTEPTS = 3;
