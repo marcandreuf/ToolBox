@@ -6,9 +6,10 @@ import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
 import com.drew.metadata.exif.ExifIFD0Directory;
 import com.drew.metadata.exif.ExifSubIFDDirectory;
+import com.google.inject.Inject;
 import org.joda.time.DateTime;
-import org.mandfer.tools.guice.ToolsBoxFactory;
 import org.mandfer.tools.utils.DateUtils;
+import org.mandfer.tools.validation.FileTypeValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +31,14 @@ public class OS {
     private static final int MAX_READ_METADATA_ATTEPTS = 3;
     private static Logger logger = LoggerFactory.getLogger(OS.class);
 
-    private final DateUtils dateUtils = ToolsBoxFactory.getInstance(DateUtils.class);
+    private final DateUtils dateUtils;
+    private final FileTypeValidator fileTypeValidator;
 
-    public OS() {}
+    @Inject
+    public OS(DateUtils dateUtils, FileTypeValidator fileTypeValidator) {
+        this.dateUtils = dateUtils;
+        this.fileTypeValidator = fileTypeValidator;
+    }
 
     public DateTime readFileCreationDate(Path path) throws IOException {
         BasicFileAttributes attrib = Files.readAttributes(path, BasicFileAttributes.class);
@@ -143,4 +149,7 @@ public class OS {
         logger.info("File moved from " + origPath + " to " + destPath);
     }
 
+    public boolean isImageFile(Path path) {
+        return fileTypeValidator.isMediaType(path.toFile().getName());
+    }
 }

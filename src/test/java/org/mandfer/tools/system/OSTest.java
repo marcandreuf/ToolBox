@@ -11,6 +11,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mandfer.tools.utils.DateUtils;
+import org.mandfer.tools.validation.FileTypeValidator;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -23,8 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
-import java.text.DateFormatSymbols;
-import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 import static org.hamcrest.core.StringContains.containsString;
@@ -37,15 +38,17 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
  * Created by andreufm on 19/07/2016.
  */
 @RunWith(PowerMockRunner.class)
-@PrepareForTest({Files.class, OS.class, ImageMetadataReader.class, Metadata.class})
+@PrepareForTest({Files.class, OS.class, ImageMetadataReader.class, Metadata.class, DateTime.class})
 public class OSTest {
 
     private Metadata mock_metadata;
     private ExifIFD0Directory mock_exifIFD0Directory;
     private ExifSubIFDDirectory mock_exifSubIFDDirectory;
-    private DateTime currentTime;
+    private DateTime currentTime, mock_dateTime;
     private File mock_file;
     private Path mock_path;
+    private DateUtils mock_dateUtils;
+    private FileTypeValidator mock_fiteTypeValidator;
     private OS os;
     private String sampleFileName = "sampleFileName";
 
@@ -63,10 +66,15 @@ public class OSTest {
         mock_exifIFD0Directory = mock(ExifIFD0Directory.class);
         mock_exifSubIFDDirectory = mock(ExifSubIFDDirectory.class);
         currentTime = DateTime.now();
-        os = new OS();
+        mock_dateTime = PowerMockito.mock(DateTime.class);
+        mock_dateUtils = mock(DateUtils.class);
+        mock_fiteTypeValidator = mock(FileTypeValidator.class);
+
+        os = new OS(mock_dateUtils, mock_fiteTypeValidator);
 
         when(mock_file.getName()).thenReturn(sampleFileName);
         when(mock_path.toFile()).thenReturn(mock_file);
+        when(mock_dateUtils.createJodaDateTime(any(Date.class))).thenReturn(currentTime);
     }
 
     @Test
@@ -100,8 +108,8 @@ public class OSTest {
     @Test
     public void failGetImageMetadata() throws ImageProcessingException, IOException {
         String samplePath = "abc";
-        when(ImageMetadataReader.readMetadata(mock_file)).thenThrow(IOException.class);
         when(mock_path.toString()).thenReturn(samplePath);
+        when(ImageMetadataReader.readMetadata(mock_file)).thenThrow(IOException.class);
         expectedException.expect(ImageProcessingException.class);
         expectedException.expectMessage(containsString(samplePath));
 
@@ -243,8 +251,6 @@ public class OSTest {
 
     @Test
     public void failedTestCheckIsReadable() throws FileNotFoundException {
-        when(mock_file.getName()).thenReturn(sampleFileName);
-        when(mock_path.toFile()).thenReturn(mock_file);
         when(Files.isDirectory(mock_path)).thenReturn(false);
         expectedException.expect(FileNotFoundException.class);
         expectedException.expectMessage(containsString("Path "+sampleFileName+" is not a readable directory."));
@@ -266,8 +272,6 @@ public class OSTest {
 
     @Test
     public void failedTestCheckIsWritable() throws FileNotFoundException {
-        when(mock_file.getName()).thenReturn(sampleFileName);
-        when(mock_path.toFile()).thenReturn(mock_file);
         when(Files.isDirectory(mock_path)).thenReturn(false);
         expectedException.expect(FileNotFoundException.class);
         expectedException.expectMessage(containsString("Path "+sampleFileName+" is not a writable directory."));
@@ -278,15 +282,24 @@ public class OSTest {
 
     @Test
     public void testCalcRelativePath(){
-        DateFormatSymbols dfs = new DateFormatSymbols(Locale.getDefault());
-        String monthAugustDefaultLocale = dfs.getShortMonths()[7].toUpperCase();
-        DateTime sampleDate = new DateTime(2013, 8, 26, 0, 0, 0);
-        Path testPath = os.calcDateRelPath(mock_path, sampleDate);
-        assertEquals(File.separator + "2013" +
-                File.separator + monthAugustDefaultLocale +
+        String sampleMonth = "ago";
+        int sampleYear = 2008;
+        when(mock_dateTime.getYear()).thenReturn(sampleYear);
+        when(mock_dateUtils.getShortMonth(mock_dateTime, Locale.getDefault())).thenReturn(sampleMonth);
+
+        Path testPath = os.calcDateRelPath(mock_path, mock_dateTime);
+
+        assertEquals(File.separator + sampleYear +
+                File.separator + sampleMonth.toUpperCase() +
                 File.separator + sampleFileName, testPath.toString());
     }
 
 
+    @Test
+    public void testIsMediaType(){
+        os.isImageFile(mock_path);
+
+        verify(mock_fiteTypeValidator).isMediaType(sampleFileName);
+    }
 
 }
