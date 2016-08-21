@@ -42,8 +42,6 @@ import static org.powermock.api.mockito.PowerMockito.mockStatic;
 public class OSTest {
 
     private Metadata mock_metadata;
-    private ExifIFD0Directory mock_exifIFD0Directory;
-    private ExifSubIFDDirectory mock_exifSubIFDDirectory;
     private DateTime currentTime, mock_dateTime;
     private File mock_file;
     private Path mock_path;
@@ -63,8 +61,6 @@ public class OSTest {
         mock_file = mock(File.class);
         mock_path = mock(Path.class);
         mock_metadata = mock(Metadata.class);
-        mock_exifIFD0Directory = mock(ExifIFD0Directory.class);
-        mock_exifSubIFDDirectory = mock(ExifSubIFDDirectory.class);
         currentTime = DateTime.now();
         mock_dateTime = PowerMockito.mock(DateTime.class);
         mock_dateUtils = mock(DateUtils.class);
@@ -114,106 +110,6 @@ public class OSTest {
         expectedException.expectMessage(containsString(samplePath));
 
         os.getImageMetadata(mock_path);
-    }
-
-    @Test
-    public void getMetadataCreationTimeFromExifIFD0Directory() throws Exception {
-        when(mock_metadata.getFirstDirectoryOfType(ExifIFD0Directory.class)).thenReturn(mock_exifIFD0Directory);
-        when(mock_exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME)).thenReturn(currentTime.toDate());
-
-        DateTime date = os.getImageExifCreationTime(mock_metadata);
-
-        assertTrue(date != null);
-        assertTrue(currentTime.equals(date));
-        verify(mock_metadata).getFirstDirectoryOfType(ExifIFD0Directory.class);
-        verify(mock_exifIFD0Directory).getDate(ExifIFD0Directory.TAG_DATETIME);
-    }
-
-    @Test
-    public void getMetadataCreationTimeFromExifSubIFDDirectoryORIGINAL_withoutDateInExifIFD0Directory()  throws Exception {
-        when(mock_metadata.getFirstDirectoryOfType(ExifIFD0Directory.class)).thenReturn(mock_exifIFD0Directory);
-        when(mock_exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME)).thenReturn(null);
-        when(mock_metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class)).thenReturn(mock_exifSubIFDDirectory);
-        when(mock_exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)).thenReturn(currentTime.toDate());
-
-        DateTime date = os.getImageExifCreationTime(mock_metadata);
-
-        assertTrue(date != null);
-        assertTrue(currentTime.equals(date));
-        verify(mock_metadata).getFirstDirectoryOfType(ExifIFD0Directory.class);
-        verify(mock_exifIFD0Directory).getDate(ExifIFD0Directory.TAG_DATETIME);
-        verify(mock_metadata).getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-        verify(mock_exifSubIFDDirectory).getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-    }
-
-
-    @Test
-    public void getMetadataCreationTimeFromExifSubIFDDirectoryORIGINAL_withoutExifIFD0Directory() throws Exception {
-        when(mock_metadata.getFirstDirectoryOfType(ExifIFD0Directory.class)).thenReturn(null);
-        when(mock_metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class)).thenReturn(mock_exifSubIFDDirectory);
-        when(mock_exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)).thenReturn(currentTime.toDate());
-
-        DateTime date = os.getImageExifCreationTime(mock_metadata);
-
-        assertTrue(date != null);
-        assertTrue(currentTime.equals(date));
-        verify(mock_metadata).getFirstDirectoryOfType(ExifIFD0Directory.class);
-        verify(mock_metadata).getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-        verify(mock_exifSubIFDDirectory).getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-        Mockito.verifyNoMoreInteractions(mock_exifSubIFDDirectory);
-    }
-
-
-    @Test
-    public void getMetadataCreationTimeFromExifSubIFDDirectoryDIGITALIZED() throws Exception {
-        when(mock_metadata.getFirstDirectoryOfType(ExifIFD0Directory.class)).thenReturn(null);
-        when(mock_metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class)).thenReturn(mock_exifSubIFDDirectory);
-        when(mock_exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)).thenReturn(null);
-        when(mock_exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_DIGITIZED)).thenReturn(currentTime.toDate());
-
-        DateTime date = os.getImageExifCreationTime(mock_metadata);
-
-        assertTrue(date != null);
-        assertTrue(currentTime.equals(date));
-        verify(mock_metadata).getFirstDirectoryOfType(ExifIFD0Directory.class);
-        verify(mock_metadata).getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-        verify(mock_exifSubIFDDirectory).getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-        verify(mock_exifSubIFDDirectory).getDate(ExifSubIFDDirectory.TAG_DATETIME_DIGITIZED);
-        Mockito.verifyNoMoreInteractions(mock_exifSubIFDDirectory);
-
-    }
-
-    @Test
-    public void failToGetMetadataCreationTimeFromAnyExifDirectory() throws ImageProcessingException {
-        when(mock_metadata.getFirstDirectoryOfType(ExifIFD0Directory.class)).thenReturn(null);
-        when(mock_metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class)).thenReturn(null);
-        expectedException.expect(ImageProcessingException.class);
-        expectedException.expectMessage(containsString("Exif creation date not found."));
-
-        os.getImageExifCreationTime(mock_metadata);
-
-        verify(mock_metadata).getFirstDirectoryOfType(ExifIFD0Directory.class);
-        verify(mock_metadata).getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-        Mockito.verifyNoMoreInteractions(mock_metadata);
-    }
-
-    @Test
-    public void failToGetMetadataCreationTimeFromAnyDateOfExifDirectory() throws Exception {
-        when(mock_metadata.getFirstDirectoryOfType(ExifIFD0Directory.class)).thenReturn(mock_exifIFD0Directory);
-        when(mock_exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME)).thenReturn(null);
-        when(mock_metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class)).thenReturn(mock_exifSubIFDDirectory);
-        when(mock_exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL)).thenReturn(null);
-        when(mock_exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_DIGITIZED)).thenReturn(null);
-        expectedException.expect(ImageProcessingException.class);
-        expectedException.expectMessage(containsString("Exif creation date not found."));
-
-        os.getImageExifCreationTime(mock_metadata);
-
-        verify(mock_metadata).getFirstDirectoryOfType(ExifIFD0Directory.class);
-        verify(mock_exifIFD0Directory).getDate(ExifIFD0Directory.TAG_DATETIME);
-        verify(mock_metadata).getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-        verify(mock_exifSubIFDDirectory).getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-        verify(mock_exifSubIFDDirectory).getDate(ExifSubIFDDirectory.TAG_DATETIME_DIGITIZED);
     }
 
 

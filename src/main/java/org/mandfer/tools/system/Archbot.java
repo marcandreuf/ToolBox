@@ -22,11 +22,12 @@ public class Archbot {
 
     private static Logger logger = LoggerFactory.getLogger(Archbot.class);
 
+    private final MediaService mediaService;
     private final OS os = ToolsBoxFactory.getInstance(OS.class);
 
-    private final Path originPath;
-    private final Path destinationPath;
-    private final Path failedPath;
+    private Path originPath;
+    private Path destinationPath;
+    private Path failedPath;
 
     private WatchService watcher;
     private WatchKey registeredKey;
@@ -40,28 +41,27 @@ public class Archbot {
 
 
     //TODO: Move paths to start method and add MediaService as dependnecy.
-    public Archbot(String originPath, String destinationPath, String failedPath) throws FileNotFoundException {
-        this.originPath = os.getPath(originPath);
-        this.destinationPath = os.getPath(destinationPath);
-        this.failedPath = os.getPath(failedPath);
-        validatePaths();
+    public Archbot(MediaService mediaService) throws FileNotFoundException {
+        this.mediaService = mediaService;
     }
 
-    private void validatePaths() throws FileNotFoundException {
-            os.checkIsDirectory(originPath);
-            os.checkIsDirectory(destinationPath);
-            os.checkIsDirectory(failedPath);
-            os.checkIsReadable(originPath);
-            os.checkIsReadable(destinationPath);
-            os.checkIsReadable(failedPath);
-            os.checkIsWritable(originPath);
-            os.checkIsWritable(destinationPath);
-            os.checkIsWritable(failedPath);
-    }
+    // Make validation in the Services which have the OS dependency.
+//    private void validatePaths() throws FileNotFoundException {
+//            os.checkIsDirectory(originPath);
+//            os.checkIsDirectory(destinationPath);
+//            os.checkIsDirectory(failedPath);
+//            os.checkIsReadable(originPath);
+//            os.checkIsReadable(destinationPath);
+//            os.checkIsReadable(failedPath);
+//            os.checkIsWritable(originPath);
+//            os.checkIsWritable(destinationPath);
+//            os.checkIsWritable(failedPath);
+//    }
 
     public static void main(String[] args) throws Exception {
         if(args.length == 3){
-            new Archbot(args[0], args[1], args[2]).start();
+            Archbot archbot = ToolsBoxFactory.getInstance(Archbot.class);
+            archbot.start(args[0], args[1], args[2]);
         }else{
             howToUseInfo();
         }
@@ -73,7 +73,13 @@ public class Archbot {
     }
 
 
-    private void start() throws IOException {
+    private void start(String originPath, String destinationPath, String failedPath) throws IOException {
+        this.originPath = os.getPath(originPath);
+        this.destinationPath = os.getPath(destinationPath);
+        this.failedPath = os.getPath(failedPath);
+
+
+
         setUpFileCreationWatcherForOriginPath();
         for(;;){
             logger.info("---- Start processing events ----");
@@ -169,7 +175,7 @@ public class Archbot {
     public void archivePhoto(Path pathFile) throws IOException {
         if(os.isImageFile(pathFile)) {
             try {
-                DateTime dateTime = findCreationDate(pathFile);
+                DateTime dateTime = mediaService.findCreationDate(pathFile);
                 Path relativePath = os.calcDateRelPath(pathFile, dateTime);
                 os.moveFileTo(pathFile, destinationPath.resolve(relativePath));
             } catch (Exception e) {
@@ -187,20 +193,6 @@ public class Archbot {
         os.moveFileTo(path, failedPath);
     }
 
-    public DateTime findCreationDate(Path filePath) throws FileNotFoundException {
-        DateTime date;
-        try {
-            Metadata metadata = os.getImageMetadata(filePath);
-            date = os.getImageExifCreationTime(metadata);
-        } catch (ImageProcessingException e) {
-            try {
-                logger.debug( "There is no EXIF metadata for " + filePath );
-                date = os.readFileCreationDate(filePath);
-            } catch (IOException e1) {
-                throw new FileNotFoundException(filePath+" does not have creation date.");
-            }
-        }
-        return date;
-    }
+
 
 }

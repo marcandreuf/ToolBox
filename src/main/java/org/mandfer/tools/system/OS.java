@@ -77,32 +77,6 @@ public class OS {
     }
 
 
-    public DateTime getImageExifCreationTime(Metadata metadata) throws ImageProcessingException {
-        Date date = null;
-
-        Directory exifIFD0Directory = metadata.getFirstDirectoryOfType(ExifIFD0Directory.class);
-        if(exifIFD0Directory != null) {
-            date = exifIFD0Directory.getDate(ExifIFD0Directory.TAG_DATETIME);
-        }
-
-        if(date == null){
-            ExifSubIFDDirectory exifSubIFDDirectory = metadata.getFirstDirectoryOfType(ExifSubIFDDirectory.class);
-            if(exifSubIFDDirectory != null) {
-                date = exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_ORIGINAL);
-                if(date == null){
-                    date = exifSubIFDDirectory.getDate(ExifSubIFDDirectory.TAG_DATETIME_DIGITIZED);
-                }
-            }
-        }
-
-        if(date != null){
-            return dateUtils.createJodaDateTime(date);
-        }else{
-            throw new ImageProcessingException("Exif creation date not found.");
-        }
-
-    }
-
     public Path getPath(String strPath){
         return Paths.get(strPath);
     }

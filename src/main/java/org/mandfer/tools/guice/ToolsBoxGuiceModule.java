@@ -6,6 +6,8 @@ import org.mandfer.tools.config.ConfigLoader;
 import org.mandfer.tools.config.DefaultsConfigLoader;
 import org.mandfer.tools.format.FormatterBasic;
 import org.mandfer.tools.format.StringFormatter;
+import org.mandfer.tools.system.ExifService;
+import org.mandfer.tools.system.MediaService;
 import org.mandfer.tools.system.OS;
 import org.mandfer.tools.utils.DateUtils;
 import org.mandfer.tools.validation.FileTypeValidator;
@@ -27,6 +29,8 @@ public class ToolsBoxGuiceModule extends AbstractModule {
         bind(FileTypeValidator.class).to(FileTypeValidatorRegExp.class);
         bind(StringFormatter.class).to(FormatterBasic.class);
         bind(DateUtils.class);
+        bind(ExifService.class);
+        bind(MediaService.class);
 
     }
 }
