@@ -1,4 +1,4 @@
-package org.mandfer.tools.system;
+package org.mandfer.tools.learning;
 
 /*
  * Copyright (c) 2008, 2010, Oracle and/or its affiliates. All rights reserved.
