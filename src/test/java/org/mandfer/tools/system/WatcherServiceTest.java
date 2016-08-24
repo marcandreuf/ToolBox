@@ -3,7 +3,6 @@ package org.mandfer.tools.system;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -13,9 +12,7 @@ import java.nio.file.*;
 import java.util.Map;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 
 /**
@@ -31,17 +28,21 @@ public class WatcherServiceTest {
     private WatchKey mock_registeredKey;
     private WatchKey mock_key;
     private FileSystem mock_fileSystem;
-    private Map<Path, WatchKey> mock_mapResgistry;
+    private Map<String, WatchKey> mock_mapResgistry;
     private WatcherService watcherService;
+    private String strPath;
+    private String cacheKey;
 
     @Before
     public void setUp() throws IOException {
-
-
         mock_path = mock(Path.class);
         mock_fileSystem = PowerMockito.mock(FileSystem.class);
-        mock_mapResgistry = (Map<Path, WatchKey>) mock(Map.class);
+        mock_mapResgistry = (Map<String, WatchKey>) mock(Map.class);
         watcherService = new WatcherService(mock_mapResgistry);
+
+        strPath = "samplePath";
+        cacheKey = strPath + ENTRY_CREATE;
+        when(mock_path.toString()).thenReturn(strPath);
     }
 
 
@@ -58,7 +59,16 @@ public class WatcherServiceTest {
         FileSystems.getDefault();
         verify(mock_fileSystem).newWatchService();
         verify(mock_path).register(mock_watcher, ENTRY_CREATE);
-        verify(mock_mapResgistry).put(mock_path, mock_registeredKey);
+        verify(mock_mapResgistry).put(cacheKey, mock_registeredKey);
     }
+
+    @Test
+    public void testCheckIfPathEventIsRegistered(){
+        watcherService.isRegistered(mock_path, ENTRY_CREATE);
+        verify(mock_mapResgistry).containsKey(cacheKey);
+    }
+
+
+    //TODO: test getListOfNewFiles()
 
 }

@@ -19,11 +19,11 @@ public class WatcherService {
     private WatchService watcher;
     private WatchKey registeredKey;
     private WatchKey key;
-    private Map<Path, WatchKey> mapRegistry;
+    private Map<String, WatchKey> mapRegistry;
 
 
     @Inject
-    public WatcherService(Map<Path, WatchKey> mapRegistry) {
+    public WatcherService(Map<String, WatchKey> mapRegistry) {
         this.mapRegistry = mapRegistry;
     }
 
@@ -31,9 +31,17 @@ public class WatcherService {
     public void registerDirEventsListener(Path path, WatchEvent.Kind<Path> eventType) throws IOException {
         watcher = FileSystems.getDefault().newWatchService();
         registeredKey = path.register(watcher, eventType);
-        mapRegistry.put(path, registeredKey);
+        String cachedKey = createCacheKey(path, eventType);
+        mapRegistry.put(cachedKey, registeredKey);
         logger.info("Listening create events at: "+ path);
     }
 
+    private String createCacheKey(Path path, WatchEvent.Kind<Path> eventType){
+        return path.toString() + eventType;
+    }
 
+    public boolean isRegistered(Path path, WatchEvent.Kind<Path> eventType) {
+        String cachedKey = createCacheKey(path, eventType);
+        return mapRegistry.containsKey(cachedKey);
+    }
 }

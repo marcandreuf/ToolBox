@@ -57,6 +57,19 @@
             <version>2.3</version>
         </dependency>
 
+        <!-- Dependency injection -->
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>3.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.inject.extensions</groupId>
+            <artifactId>guice-multibindings</artifactId>
+            <version>4.1.0</version>
+        </dependency>
+
         <!-- jsoup HTML parser library @ http://jsoup.org/ -->
         <dependency>
             <groupId>org.jsoup</groupId>
@@ -91,12 +104,7 @@
             <version>1.1.7</version>
         </dependency>
 
-        <!-- Dependenci injection -->
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>3.0</version>
-        </dependency>
+
 
         <!-- SSH2 Java Implementation library -->
         <dependency>
@@ -172,7 +180,7 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Java version to 1.7 -->
+                <!-- Java version to 1.8 -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -182,6 +190,35 @@
                         <target>1.8</target>
                     </configuration>
                 </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.4.1</version>
+                    <executions>
+                        <execution>
+                            <id>verify</id>
+                            <phase>validate</phase>
+                            <goals>
+                                <goal>display-info</goal>
+                            </goals>
+                            <inherited>true</inherited>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <failFast>true</failFast>
+                        <rules>
+                            <DependencyConvergence></DependencyConvergence>
+                            <requireReleaseDeps>
+                                <onlyWhenRelease>true</onlyWhenRelease>
+                            </requireReleaseDeps>
+                            <requireJavaVersion>
+                                <version>${java.version}</version>
+                            </requireJavaVersion>
+                        </rules>
+                    </configuration>
+                </plugin>
+
             </plugins>
         </pluginManagement>
     </build>
