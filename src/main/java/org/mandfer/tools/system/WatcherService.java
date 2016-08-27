@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.List;
 import java.util.Map;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
@@ -19,7 +20,7 @@ public class WatcherService {
     private WatchService watcher;
     private WatchKey registeredKey;
     private WatchKey key;
-    private Map<String, WatchKey> mapRegistry;
+    private final Map<String, WatchKey> mapRegistry;
 
 
     @Inject
@@ -43,5 +44,15 @@ public class WatcherService {
     public boolean isRegistered(Path path, WatchEvent.Kind<Path> eventType) {
         String cachedKey = createCacheKey(path, eventType);
         return mapRegistry.containsKey(cachedKey);
+    }
+
+    public List<Path> getListOfFilesByEvent(Path path, WatchEvent.Kind<Path> eventType) throws Exception {
+        try {
+            key = watcher.take();
+        } catch (InterruptedException e) {
+            logger.error(e.getMessage(), e);
+            throw new Exception("Watcher key not found.");
+        }
+        return null;
     }
 }
