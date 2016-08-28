@@ -5,20 +5,21 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 
 /**
  * Created by marc on 21/08/16.
  */
-public class Archiver {
+public class ArchiverService {
 
-    private final Logger logger = LoggerFactory.getLogger(Archiver.class);
+    private final Logger logger = LoggerFactory.getLogger(ArchiverService.class);
     private final OS os;
     private final MediaService mediaService;
 
     @Inject
-    public Archiver(OS os, MediaService mediaService) {
+    public ArchiverService(OS os, MediaService mediaService) {
         this.os = os;
         this.mediaService = mediaService;
     }
@@ -39,6 +40,7 @@ public class Archiver {
 //            moveFileToBackup(imagePath, failedPath);
 //        }
     }
+
 
     private void moveFileToBackup(Path path, Path failedPath) throws IOException {
         logger.debug("Moving file "+path+" to backup folder.");

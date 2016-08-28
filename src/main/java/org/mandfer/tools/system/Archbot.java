@@ -40,12 +40,11 @@ public class Archbot {
     }
 
 
-    //TODO: Move paths to start method and add MediaService as dependnecy.
+    //TODO: Inject DirWatcher, DirArchiver
     public Archbot(MediaService mediaService) throws FileNotFoundException {
         this.mediaService = mediaService;
     }
 
-    // Make validation in the Services which have the OS dependency.
 //    private void validatePaths() throws FileNotFoundException {
 //            os.checkIsDirectory(originPath);
 //            os.checkIsDirectory(destinationPath);
@@ -60,6 +59,9 @@ public class Archbot {
 
     public static void main(String[] args) throws Exception {
         if(args.length == 3){
+            //TODO: Validate paths
+            //TODO: Get Insances of DirWatcher and DirArchiver
+            //TODO: Get Instance of Archbot (os, dirwatcher, dirarchiver)
             Archbot archbot = ToolsBoxFactory.getInstance(Archbot.class);
             archbot.start(args[0], args[1], args[2]);
         }else{

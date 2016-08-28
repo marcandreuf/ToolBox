@@ -1,6 +1,5 @@
 package org.mandfer.tools.system;
 
-import com.drew.metadata.Metadata;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,7 +20,7 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Path.class, DateTime.class})
-public class ArchiverTest {
+public class ArchiverServiceTest {
 
 
 
@@ -29,7 +28,7 @@ public class ArchiverTest {
     private DateTime mock_creationDate;
     private OS mock_Os;
     private MediaService mock_mediaService;
-    private Archiver archiver;
+    private ArchiverService archiverService;
 
 
 
@@ -44,7 +43,7 @@ public class ArchiverTest {
         mock_Os = mock(OS.class);
         mock_mediaService = mock(MediaService.class);
 
-        archiver = new Archiver(mock_Os, mock_mediaService);
+        archiverService = new ArchiverService(mock_Os, mock_mediaService);
     }
 
     @Test
@@ -53,7 +52,7 @@ public class ArchiverTest {
         when(mock_Os.calcDateRelPath(mock_path, mock_creationDate)).thenReturn(mock_relPath);
         when(mock_destPath.resolve(mock_relPath)).thenReturn(mock_fullPath);
 
-        archiver.archivePhoto(mock_path, mock_destPath, mock_failed);
+        archiverService.archivePhoto(mock_path, mock_destPath, mock_failed);
 
         verify(mock_mediaService).findCreationDate(mock_path);
         verify(mock_Os).calcDateRelPath(mock_path, mock_creationDate);
@@ -67,7 +66,7 @@ public class ArchiverTest {
     public void moveFileToBackupFolderIfThereIsAnyException() throws Exception {
         when(mock_mediaService.findCreationDate(mock_path)).thenThrow(FileNotFoundException.class);
 
-        archiver.archivePhoto(mock_path, mock_destPath, mock_failed);
+        archiverService.archivePhoto(mock_path, mock_destPath, mock_failed);
 
         verify(mock_Os).moveFileTo(mock_path, mock_failed);
     }

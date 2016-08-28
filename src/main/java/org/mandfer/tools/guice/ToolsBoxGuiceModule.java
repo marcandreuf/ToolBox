@@ -3,21 +3,19 @@ package org.mandfer.tools.guice;
 
 import com.google.inject.AbstractModule;
 import com.google.inject.TypeLiteral;
+import com.google.inject.assistedinject.FactoryModuleBuilder;
 import org.mandfer.tools.config.ConfigLoader;
 import org.mandfer.tools.config.DefaultsConfigLoader;
 import org.mandfer.tools.format.FormatterBasic;
 import org.mandfer.tools.format.StringFormatter;
-import org.mandfer.tools.system.ExifService;
-import org.mandfer.tools.system.MediaService;
-import org.mandfer.tools.system.OS;
+import org.mandfer.tools.system.*;
 import org.mandfer.tools.utils.DateUtils;
 import org.mandfer.tools.validation.FileTypeValidator;
 import org.mandfer.tools.validation.FileTypeValidatorRegExp;
 
 import java.nio.file.Path;
-import java.nio.file.WatchKey;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 
 /**
  * Guice technology configuration module class for tools box package.
@@ -37,7 +35,17 @@ public class ToolsBoxGuiceModule extends AbstractModule {
         bind(DateUtils.class);
         bind(ExifService.class);
         bind(MediaService.class);
-        bind(new TypeLiteral<Map<Path, WatchKey>>(){}).toInstance(new HashMap<>());
+        bind(ArchiverService.class);
+        bind(new TypeLiteral<BlockingQueue<Path>>(){}).toInstance(new SynchronousQueue<>());
+
+        install(new FactoryModuleBuilder()
+                .implement(DirArchiver.class, DirArchiverThread.class)
+                .build(DirArchiverFactory.class));
+
+
+        //TODO: bind DirWatcher
+
+        //TODO: bind Archbot
 
     }
 }

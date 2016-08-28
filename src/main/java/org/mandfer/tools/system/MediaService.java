@@ -1,20 +1,15 @@
 package org.mandfer.tools.system;
 
 import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifIFD0Directory;
-import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.google.inject.Inject;
 import org.joda.time.DateTime;
-import org.mandfer.tools.utils.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Date;
 
 /**
  * Created by marcandreuf on 21/08/16.
