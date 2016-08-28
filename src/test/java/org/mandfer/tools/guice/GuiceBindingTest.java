@@ -14,12 +14,10 @@ public class GuiceBindingTest {
 
     @Test
     public void testCreateDirArchiver() {
-
         String sampleDest = System.getProperty("user.dir")+"/archbot/dest";
         String sampleFailed = System.getProperty("user.dir")+"/archbot/failed";
         Path destPath = Paths.get(sampleDest);
         Path failedPath = Paths.get(sampleFailed);
-
         DirArchiverFactory dirArchiverFactory = ToolsBoxFactory.getInstance(DirArchiverFactory.class);
 
         DirArchiver dirArchiver = dirArchiverFactory.create(destPath, failedPath);

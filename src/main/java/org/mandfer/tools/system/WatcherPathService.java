@@ -31,7 +31,7 @@ public class WatcherPathService {
     }
 
 
-    public List<Path> getListOfFilesByEvent(Path path, WatchEvent.Kind<Path> eventType) throws Exception {
+    public List<Path> getListOfFilesByEvent() throws Exception {
         List<Path> newFiles = new ArrayList<>();
         WatchKey key = getKeyWithLastEvents();
         if(isRegisteredKey(key)){

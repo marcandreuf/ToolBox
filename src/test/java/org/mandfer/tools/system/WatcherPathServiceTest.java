@@ -70,7 +70,7 @@ public class WatcherPathServiceTest {
         when(mock_eventPath.context()).thenReturn(mock_pathName);
         when(mock_path.resolve(mock_pathName)).thenReturn(mock_pathResolved);
 
-        List<Path> files = watcherPathService.getListOfFilesByEvent(mock_path, ENTRY_CREATE);
+        List<Path> files = watcherPathService.getListOfFilesByEvent();
 
         verify(mock_watcher).take();
         verify(mock_registeredKey).pollEvents();
@@ -89,7 +89,7 @@ public class WatcherPathServiceTest {
         stubbed_events.add(mock_eventPath);
         when(mock_registeredKey.pollEvents()).thenReturn(stubbed_events);
 
-        List<Path> files = watcherPathService.getListOfFilesByEvent(mock_path, ENTRY_CREATE);
+        List<Path> files = watcherPathService.getListOfFilesByEvent();
 
         verify(mock_path).register(mock_watcher, ENTRY_CREATE);
         verify(mock_watcher).take();
@@ -106,7 +106,7 @@ public class WatcherPathServiceTest {
         WatchKey mock_diffKey = mock(WatchKey.class);
         when(mock_watcher.take()).thenReturn(mock_diffKey);
 
-        List<Path> files = watcherPathService.getListOfFilesByEvent(mock_path, ENTRY_CREATE);
+        List<Path> files = watcherPathService.getListOfFilesByEvent();
 
         verify(mock_watcher).take();
         verifyNoMoreInteractions(mock_registeredKey);
