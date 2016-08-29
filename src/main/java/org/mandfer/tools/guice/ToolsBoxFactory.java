@@ -2,6 +2,9 @@ package org.mandfer.tools.guice;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import org.mandfer.tools.system.DirArchiver;
+
+import java.nio.file.Path;
 
 /**
  * This factory is a helper class to create objects without Guice syntax.
@@ -28,5 +31,10 @@ public class ToolsBoxFactory {
         return toolsBoxInjector.getInstance(type);
     }
 
+
+    public static DirArchiver getDirArchiverInstance(Path destPath, Path failedPath) {
+        DirArchiverFactory dirArchiverFactory = ToolsBoxFactory.getInstance(DirArchiverFactory.class);
+        return dirArchiverFactory.create(destPath, failedPath);
+    }
 
 }

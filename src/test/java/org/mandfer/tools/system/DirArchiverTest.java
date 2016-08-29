@@ -20,12 +20,12 @@ import static org.mockito.Mockito.when;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest(Path.class)
-public class DirArchiverServiceThreadTest {
+public class DirArchiverTest {
 
     private ArchiverService mock_archiverService;
     private Path mock_destPath, mock_failPath, mock_nextPath;
     private BlockingQueue<Path> mock_blqQueue;
-    private DirArchiverThread dirArchiverThread;
+    private DirArchiver dirArchiver;
 
 
     @Before
@@ -36,7 +36,7 @@ public class DirArchiverServiceThreadTest {
         mock_nextPath = mock(Path.class);
         mock_blqQueue = mock(BlockingQueue.class);
 
-        dirArchiverThread = new DirArchiverThread(mock_destPath, mock_failPath, mock_archiverService, mock_blqQueue);
+        dirArchiver = new DirArchiverThread(mock_destPath, mock_failPath, mock_archiverService, mock_blqQueue);
     }
 
 
@@ -44,7 +44,7 @@ public class DirArchiverServiceThreadTest {
     public void testArchiveNext() throws InterruptedException, IOException {
         when(mock_blqQueue.take()).thenReturn(mock_nextPath);
 
-        dirArchiverThread.archiveNext();
+        dirArchiver.archiveNext();
 
         verify(mock_blqQueue).take();
         verify(mock_archiverService).archivePhoto(mock_nextPath, mock_destPath, mock_failPath);
