@@ -36,12 +36,12 @@ public class DirWatcherTest {
 
     @Test
     public void testGetValidImageFiles() throws Exception {
-        when(mock_watcherPathService.getListOfFilesByEvent()).thenReturn(stub_newFilesList);
+        when(mock_watcherPathService.getListOfFiles()).thenReturn(stub_newFilesList);
         when(mock_Os.isImageFile(mock_newFilePath)).thenReturn(true);
 
         dirWatcher.watch();
 
-        verify(mock_watcherPathService).getListOfFilesByEvent();
+        verify(mock_watcherPathService).getListOfFiles();
         verify(mock_Os).isImageFile(mock_newFilePath);
         verify(mock_blqQueue).addAll(anyCollection());
     }
@@ -49,23 +49,23 @@ public class DirWatcherTest {
 
     @Test
     public void testGetNonImageFiles() throws Exception {
-        when(mock_watcherPathService.getListOfFilesByEvent()).thenReturn(stub_newFilesList);
+        when(mock_watcherPathService.getListOfFiles()).thenReturn(stub_newFilesList);
         when(mock_Os.isImageFile(mock_newFilePath)).thenReturn(false);
 
         dirWatcher.watch();
 
-        verify(mock_watcherPathService).getListOfFilesByEvent();
+        verify(mock_watcherPathService).getListOfFiles();
         verify(mock_Os).isImageFile(mock_newFilePath);
         verifyNoMoreInteractions(mock_blqQueue);
     }
 
     @Test
     public void testGetNonNewFiles() throws Exception {
-        when(mock_watcherPathService.getListOfFilesByEvent()).thenReturn(new ArrayList<>());
+        when(mock_watcherPathService.getListOfFiles()).thenReturn(new ArrayList<>());
 
         dirWatcher.watch();
 
-        verify(mock_watcherPathService).getListOfFilesByEvent();
+        verify(mock_watcherPathService).getListOfFiles();
         verifyNoMoreInteractions(mock_Os);
         verifyNoMoreInteractions(mock_blqQueue);
     }

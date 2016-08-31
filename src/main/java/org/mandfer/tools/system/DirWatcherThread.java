@@ -3,7 +3,6 @@ package org.mandfer.tools.system;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
@@ -19,7 +18,10 @@ public class DirWatcherThread implements DirWatcher, Runnable {
     private final OS os;
     private final BlockingQueue<Path> blockingQueue;
 
-    public DirWatcherThread(WatcherPathService watcherPathService, OS os, BlockingQueue<Path> blockingQueue) {
+
+    public DirWatcherThread(WatcherPathService watcherPathService,
+                            OS os,
+                            BlockingQueue<Path> blockingQueue) {
         this.watcherPathService = watcherPathService;
         this.os = os;
         this.blockingQueue = blockingQueue;
@@ -27,7 +29,7 @@ public class DirWatcherThread implements DirWatcher, Runnable {
 
     @Override
     public void watch() throws Exception {
-        List<Path> newFiles = watcherPathService.getListOfFilesByEvent();
+        List<Path> newFiles = watcherPathService.getListOfFiles();
         List<Path> newImageFiles = newFiles.stream().filter(path -> os.isImageFile(path)).collect(Collectors.toList());
         if(!newImageFiles.isEmpty()) {
             blockingQueue.addAll(newImageFiles);

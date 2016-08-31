@@ -1,5 +1,7 @@
 package org.mandfer.tools.system;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,12 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.sun.jmx.mbeanserver.Util.cast;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 /**
  * Created by marc on 23/08/16.
  */
-public class WatcherPathService {
+public class WatcherPathService implements WatcherPath {
 
     private static Logger logger = LoggerFactory.getLogger(WatcherPathService.class);
     private final WatchService watcher;
@@ -22,16 +25,18 @@ public class WatcherPathService {
     private final WatchKey registeredKey;
 
 
-
-    public WatcherPathService(Path path, WatchEvent.Kind<Path> eventType)
+    @Inject
+    public WatcherPathService(
+            @Assisted Path path,
+            @Assisted WatchEvent.Kind<Path> eventType)
             throws IOException {
         this.path = path;
         watcher = FileSystems.getDefault().newWatchService();
         registeredKey = path.register(watcher, eventType);
     }
 
-
-    public List<Path> getListOfFilesByEvent() throws Exception {
+    @Override
+    public List<Path> getListOfFiles() throws Exception {
         List<Path> newFiles = new ArrayList<>();
         WatchKey key = getKeyWithLastEvents();
         if(isRegisteredKey(key)){

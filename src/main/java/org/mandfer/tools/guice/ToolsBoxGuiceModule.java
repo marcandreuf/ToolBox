@@ -42,6 +42,10 @@ public class ToolsBoxGuiceModule extends AbstractModule {
                 .implement(DirArchiver.class, DirArchiverThread.class)
                 .build(DirArchiverFactory.class));
 
+        install(new FactoryModuleBuilder()
+                .implement(WatcherPath.class, WatcherPathService.class)
+                .build(WatcherPathFactory.class));
+
 
         //TODO: bind DirWatcher
 

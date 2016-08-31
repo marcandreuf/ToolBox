@@ -3,8 +3,12 @@ package org.mandfer.tools.guice;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import org.mandfer.tools.system.DirArchiver;
+import org.mandfer.tools.system.DirWatcher;
+import org.mandfer.tools.system.WatcherPathService;
 
 import java.nio.file.Path;
+
+import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 
 /**
  * This factory is a helper class to create objects without Guice syntax.
@@ -37,4 +41,13 @@ public class ToolsBoxFactory {
         return dirArchiverFactory.create(destPath, failedPath);
     }
 
+    public static DirWatcher getDirWatcherInstance(Path originPath) {
+        DirWatcherFactory dirWatcherFactory = ToolsBoxFactory.getInstance(DirWatcherFactory.class);
+        return dirWatcherFactory.create(originPath);
+    }
+
+    public static WatcherPathService getWatcherPathServiceInstance(Path path) {
+        WatcherPathFactory watcherPathFactory = ToolsBoxFactory.getInstance(WatcherPathFactory.class);
+        return watcherPathFactory.create(path, ENTRY_CREATE);
+    }
 }
