@@ -41,13 +41,15 @@ public class ToolsBoxFactory {
         return dirArchiverFactory.create(destPath, failedPath);
     }
 
-    public static DirWatcher getDirWatcherInstance(Path originPath) {
-        DirWatcherFactory dirWatcherFactory = ToolsBoxFactory.getInstance(DirWatcherFactory.class);
-        return dirWatcherFactory.create(originPath);
-    }
-
     public static WatcherPathService getWatcherPathServiceInstance(Path path) {
         WatcherPathFactory watcherPathFactory = ToolsBoxFactory.getInstance(WatcherPathFactory.class);
         return watcherPathFactory.create(path, ENTRY_CREATE);
     }
+
+    public static DirWatcher getDirWatcherInstance(Path originPath) {
+        WatcherPathService watcherPathService = getWatcherPathServiceInstance(originPath);
+        DirWatcherFactory dirWatcherFactory = ToolsBoxFactory.getInstance(DirWatcherFactory.class);
+        return dirWatcherFactory.create(watcherPathService);
+    }
+
 }

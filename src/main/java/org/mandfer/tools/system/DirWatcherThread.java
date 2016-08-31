@@ -1,5 +1,7 @@
 package org.mandfer.tools.system;
 
+import com.google.inject.Inject;
+import com.google.inject.assistedinject.Assisted;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +21,8 @@ public class DirWatcherThread implements DirWatcher, Runnable {
     private final BlockingQueue<Path> blockingQueue;
 
 
-    public DirWatcherThread(WatcherPathService watcherPathService,
+    @Inject
+    public DirWatcherThread(@Assisted WatcherPathService watcherPathService,
                             OS os,
                             BlockingQueue<Path> blockingQueue) {
         this.watcherPathService = watcherPathService;

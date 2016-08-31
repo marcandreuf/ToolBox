@@ -39,16 +39,16 @@ public class GuiceBindingTest {
         Assert.assertNotNull(watcherPathService);
     }
 
-//    @Test
-//    public void testCreateDirWatcher() {
-//        String sampleOrigin = System.getProperty("user.dir")+"/archbot/org";
-//        Path originPath = Paths.get(sampleOrigin);
-//
-//        DirWatcher dirWatcher = ToolsBoxFactory.getDirWatcherInstance(originPath);
-//
-//        Assert.assertNotNull(dirWatcher);
-//
-//    }
+    @Test
+    public void testCreateDirWatcher() {
+        String sampleOrigin = System.getProperty("user.dir");
+        Path originPath = Paths.get(sampleOrigin);
+
+        DirWatcher dirWatcher = ToolsBoxFactory.getDirWatcherInstance(originPath);
+
+        Assert.assertNotNull(dirWatcher);
+
+    }
 
     //TODO Get BlockingQueue singleton instance.
 

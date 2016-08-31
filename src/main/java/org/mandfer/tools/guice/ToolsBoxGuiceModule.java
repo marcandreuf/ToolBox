@@ -2,6 +2,7 @@ package org.mandfer.tools.guice;
 
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import org.mandfer.tools.config.ConfigLoader;
@@ -13,6 +14,7 @@ import org.mandfer.tools.utils.DateUtils;
 import org.mandfer.tools.validation.FileTypeValidator;
 import org.mandfer.tools.validation.FileTypeValidatorRegExp;
 
+import javax.xml.ws.handler.MessageContext;
 import java.nio.file.Path;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
@@ -36,7 +38,11 @@ public class ToolsBoxGuiceModule extends AbstractModule {
         bind(ExifService.class);
         bind(MediaService.class);
         bind(ArchiverService.class);
-        bind(new TypeLiteral<BlockingQueue<Path>>(){}).toInstance(new SynchronousQueue<>());
+
+        //TODO: bind a singleton BQFactory.
+        //bind(BlockingQueueFactory.class)
+        bind(new TypeLiteral<BlockingQueue<Path>>(){})
+                .toInstance(new SynchronousQueue<>());
 
         install(new FactoryModuleBuilder()
                 .implement(DirArchiver.class, DirArchiverThread.class)
@@ -46,8 +52,9 @@ public class ToolsBoxGuiceModule extends AbstractModule {
                 .implement(WatcherPath.class, WatcherPathService.class)
                 .build(WatcherPathFactory.class));
 
-
-        //TODO: bind DirWatcher
+        install(new FactoryModuleBuilder()
+                .implement(DirWatcher.class, DirWatcherThread.class)
+                .build(DirWatcherFactory.class));
 
         //TODO: bind Archbot
 
