@@ -105,12 +105,12 @@ public class OS {
      *
      * @param filePath
      * @param dateTime
-     * @return  /yyyy/MMM/fileName.ext
+     * @return  yyyy/MMM/fileName.ext
      */
     public Path calcDateRelPath(Path filePath, DateTime dateTime) {
         int year = dateTime.getYear();
         String month = dateUtils.getShortMonth(dateTime, Locale.getDefault()).toUpperCase();
-        return Paths.get(File.separator + year +
+        return Paths.get(year +
                 File.separator + month +
                 File.separator + filePath.toFile().getName());
     }

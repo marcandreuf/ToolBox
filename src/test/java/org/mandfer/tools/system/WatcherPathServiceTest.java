@@ -76,6 +76,7 @@ public class WatcherPathServiceTest {
         verify(mock_registeredKey).pollEvents();
         verify(mock_eventPath, times(2)).kind();
         verify(mock_path).resolve(mock_pathName);
+        verify(mock_registeredKey).reset();
         Assert.assertTrue(files.contains(mock_pathResolved));
     }
 
@@ -96,6 +97,7 @@ public class WatcherPathServiceTest {
         verify(mock_registeredKey).pollEvents();
         verify(mock_eventPath).kind();
         verifyNoMoreInteractions(mock_path);
+        verify(mock_registeredKey).reset();
         Assert.assertNotNull(files);
         Assert.assertFalse(files.contains(mock_pathResolved));
 
@@ -110,6 +112,7 @@ public class WatcherPathServiceTest {
 
         verify(mock_watcher).take();
         verifyNoMoreInteractions(mock_registeredKey);
+        verify(mock_diffKey).reset();
         Assert.assertNotNull(files);
         Assert.assertFalse(files.contains(mock_pathResolved));
 

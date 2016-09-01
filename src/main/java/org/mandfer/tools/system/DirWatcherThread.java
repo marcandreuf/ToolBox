@@ -38,6 +38,7 @@ public class DirWatcherThread implements DirWatcher {
                                         .filter(path -> os.isImageFile(path))
                                         .collect(Collectors.toList());
         if(!newImageFiles.isEmpty()) {
+            newImageFiles.forEach((path) -> logger.debug("Send photo to archive: " + path.toString()));
             blockingQueue.addAll(newImageFiles);
         }
     }

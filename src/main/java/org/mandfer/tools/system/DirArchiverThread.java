@@ -35,6 +35,7 @@ public class DirArchiverThread implements DirArchiver  {
     @Override
     public void archiveNext() throws InterruptedException, IOException {
         Path next = blqQueue.take();
+        logger.debug("Process photo: " + next);
         archiverService.archivePhoto(next, destPath, failPath);
     }
 

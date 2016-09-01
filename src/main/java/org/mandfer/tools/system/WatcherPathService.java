@@ -38,6 +38,7 @@ public class WatcherPathService implements WatcherPath {
     public List<Path> getListOfFiles() throws Exception {
         List<Path> newFiles = new ArrayList<>();
         WatchKey key = getKeyWithLastEvents();
+
         if(isRegisteredKey(key)){
             for (WatchEvent<?> event : key.pollEvents()) {
                 WatchEvent.Kind kind = event.kind();
@@ -46,6 +47,13 @@ public class WatcherPathService implements WatcherPath {
                 newFiles.add(resolvedPath);
             }
         }
+
+        boolean valid = key.reset();
+        if (!valid) {
+            logger.debug("Key reset not valid. ");
+        }
+        logger.debug("------------------");
+
         return newFiles;
     }
 
