@@ -8,6 +8,7 @@ import org.mandfer.tools.system.DirWatcher;
 import org.mandfer.tools.system.WatcherPathService;
 
 import java.nio.file.Path;
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.SynchronousQueue;
 
@@ -62,7 +63,7 @@ public class ToolsBoxFactory {
     public static BlockingQueue<Path> getBlockingQueue() {
         if(blockingQueue == null) {
             synchronized (SynchronousQueue.class) {
-                blockingQueue = new SynchronousQueue<>();
+                blockingQueue = new ArrayBlockingQueue<>(1000);
             }
         }
         return blockingQueue;

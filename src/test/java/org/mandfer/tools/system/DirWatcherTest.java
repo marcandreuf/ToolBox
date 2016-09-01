@@ -43,6 +43,8 @@ public class DirWatcherTest {
 
         verify(mock_watcherPathService).getListOfFiles();
         verify(mock_Os).isImageFile(mock_newFilePath);
+        verify(mock_blqQueue).remainingCapacity();
+        verify(mock_blqQueue).size();
         verify(mock_blqQueue).addAll(anyCollection());
     }
 
@@ -56,6 +58,8 @@ public class DirWatcherTest {
 
         verify(mock_watcherPathService).getListOfFiles();
         verify(mock_Os).isImageFile(mock_newFilePath);
+        verify(mock_blqQueue).remainingCapacity();
+        verify(mock_blqQueue).size();
         verifyNoMoreInteractions(mock_blqQueue);
     }
 
@@ -67,6 +71,8 @@ public class DirWatcherTest {
 
         verify(mock_watcherPathService).getListOfFiles();
         verifyNoMoreInteractions(mock_Os);
+        verify(mock_blqQueue).remainingCapacity();
+        verify(mock_blqQueue).size();
         verifyNoMoreInteractions(mock_blqQueue);
     }
 
