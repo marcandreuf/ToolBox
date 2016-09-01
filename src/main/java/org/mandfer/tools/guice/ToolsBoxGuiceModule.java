@@ -2,6 +2,7 @@ package org.mandfer.tools.guice;
 
 
 import com.google.inject.AbstractModule;
+import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
@@ -26,6 +27,8 @@ import java.util.concurrent.SynchronousQueue;
  */
 public class ToolsBoxGuiceModule extends AbstractModule {
 
+
+
     @Override
     protected void configure() {
 
@@ -39,10 +42,6 @@ public class ToolsBoxGuiceModule extends AbstractModule {
         bind(MediaService.class);
         bind(ArchiverService.class);
 
-        //TODO: bind a singleton BQFactory.
-        //bind(BlockingQueueFactory.class)
-        bind(new TypeLiteral<BlockingQueue<Path>>(){})
-                .toInstance(new SynchronousQueue<>());
 
         install(new FactoryModuleBuilder()
                 .implement(DirArchiver.class, DirArchiverThread.class)
@@ -56,7 +55,9 @@ public class ToolsBoxGuiceModule extends AbstractModule {
                 .implement(DirWatcher.class, DirWatcherThread.class)
                 .build(DirWatcherFactory.class));
 
-        //TODO: bind Archbot
+
 
     }
+
+
 }

@@ -2,11 +2,14 @@ package org.mandfer.tools.guice;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Provides;
 import org.mandfer.tools.system.DirArchiver;
 import org.mandfer.tools.system.DirWatcher;
 import org.mandfer.tools.system.WatcherPathService;
 
 import java.nio.file.Path;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.SynchronousQueue;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 
@@ -22,6 +25,7 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 public class ToolsBoxFactory {
 
     private static Injector toolsBoxInjector = Guice.createInjector(new ToolsBoxGuiceModule());
+    private static volatile BlockingQueue<Path> blockingQueue;
 
 
     /**
@@ -38,7 +42,8 @@ public class ToolsBoxFactory {
 
     public static DirArchiver getDirArchiverInstance(Path destPath, Path failedPath) {
         DirArchiverFactory dirArchiverFactory = ToolsBoxFactory.getInstance(DirArchiverFactory.class);
-        return dirArchiverFactory.create(destPath, failedPath);
+        BlockingQueue<Path> blockingQueue = getBlockingQueue();
+        return dirArchiverFactory.create(destPath, failedPath, blockingQueue);
     }
 
     public static WatcherPathService getWatcherPathServiceInstance(Path path) {
@@ -48,8 +53,18 @@ public class ToolsBoxFactory {
 
     public static DirWatcher getDirWatcherInstance(Path originPath) {
         WatcherPathService watcherPathService = getWatcherPathServiceInstance(originPath);
+        BlockingQueue<Path> blockingQueue = getBlockingQueue();
         DirWatcherFactory dirWatcherFactory = ToolsBoxFactory.getInstance(DirWatcherFactory.class);
-        return dirWatcherFactory.create(watcherPathService);
+        return dirWatcherFactory.create(watcherPathService, blockingQueue);
     }
 
+
+    public static BlockingQueue<Path> getBlockingQueue() {
+        if(blockingQueue == null) {
+            synchronized (SynchronousQueue.class) {
+                blockingQueue = new SynchronousQueue<>();
+            }
+        }
+        return blockingQueue;
+    }
 }

@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.sun.jmx.mbeanserver.Util.cast;
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 /**

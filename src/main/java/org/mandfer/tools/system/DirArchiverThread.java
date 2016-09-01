@@ -12,7 +12,7 @@ import java.util.concurrent.BlockingQueue;
 /**
  * Created by marc on 22/08/16.
  */
-public class DirArchiverThread implements DirArchiver, Runnable  {
+public class DirArchiverThread implements DirArchiver  {
 
     private final Logger logger = LoggerFactory.getLogger(DirArchiverThread.class);
     private final Path destPath;
@@ -25,7 +25,7 @@ public class DirArchiverThread implements DirArchiver, Runnable  {
     public DirArchiverThread(@Assisted("destPath") Path destPath,
                              @Assisted("failPath") Path failPath,
                              ArchiverService archiverService,
-                             BlockingQueue<Path> blqQueue) {
+                             @Assisted BlockingQueue<Path> blqQueue) {
         this.destPath = destPath;
         this.failPath = failPath;
         this.archiverService = archiverService;

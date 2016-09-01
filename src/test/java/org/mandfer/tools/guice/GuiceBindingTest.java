@@ -8,6 +8,7 @@ import org.mandfer.tools.system.WatcherPathService;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Created by marc on 23/08/16.
@@ -50,7 +51,12 @@ public class GuiceBindingTest {
 
     }
 
-    //TODO Get BlockingQueue singleton instance.
+    @Test
+    public void testGetSingletonBlockingQueue(){
+        BlockingQueue<Path> queueRef1 = ToolsBoxFactory.getBlockingQueue();
+        BlockingQueue<Path> queueRef2 = ToolsBoxFactory.getBlockingQueue();
+        Assert.assertTrue( queueRef1 == queueRef2);
+    }
 
 
 }

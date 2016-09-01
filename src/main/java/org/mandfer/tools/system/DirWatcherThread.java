@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Created by marc on 29/08/16.
  */
-public class DirWatcherThread implements DirWatcher, Runnable {
+public class DirWatcherThread implements DirWatcher {
 
     private final Logger logger = LoggerFactory.getLogger(DirWatcherThread.class);
     private final WatcherPathService watcherPathService;
@@ -24,7 +24,7 @@ public class DirWatcherThread implements DirWatcher, Runnable {
     @Inject
     public DirWatcherThread(@Assisted WatcherPathService watcherPathService,
                             OS os,
-                            BlockingQueue<Path> blockingQueue) {
+                            @Assisted BlockingQueue<Path> blockingQueue) {
         this.watcherPathService = watcherPathService;
         this.os = os;
         this.blockingQueue = blockingQueue;
@@ -33,7 +33,10 @@ public class DirWatcherThread implements DirWatcher, Runnable {
     @Override
     public void watch() throws Exception {
         List<Path> newFiles = watcherPathService.getListOfFiles();
-        List<Path> newImageFiles = newFiles.stream().filter(path -> os.isImageFile(path)).collect(Collectors.toList());
+        List<Path> newImageFiles = newFiles
+                                        .stream()
+                                        .filter(path -> os.isImageFile(path))
+                                        .collect(Collectors.toList());
         if(!newImageFiles.isEmpty()) {
             blockingQueue.addAll(newImageFiles);
         }
