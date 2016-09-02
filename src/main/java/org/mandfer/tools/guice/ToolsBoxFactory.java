@@ -63,7 +63,7 @@ public class ToolsBoxFactory {
     public static BlockingQueue<Path> getBlockingQueue() {
         if(blockingQueue == null) {
             synchronized (SynchronousQueue.class) {
-                blockingQueue = new ArrayBlockingQueue<>(1000);
+                blockingQueue = new ArrayBlockingQueue<>(5000);
             }
         }
         return blockingQueue;
