@@ -82,7 +82,6 @@ public class MediaServiceTest {
     public void failedTestFindCreationDate() throws Exception {
         String path = "samplePath";
         expectedException.expect(FileNotFoundException.class);
-        expectedException.expectMessage(equalTo(path+" does not have creation date."));
         when(mock_path.toString()).thenReturn(path);
         when(mock_Os.getImageMetadata(mock_path)).thenThrow(ImageProcessingException.class);
         when(mock_Os.readFileCreationDate(mock_path)).thenThrow(IOException.class);

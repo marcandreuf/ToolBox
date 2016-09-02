@@ -2,10 +2,7 @@ package org.mandfer.tools.system;
 
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.Directory;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifIFD0Directory;
-import com.drew.metadata.exif.ExifSubIFDDirectory;
 import com.google.inject.Inject;
 import org.joda.time.DateTime;
 import org.mandfer.tools.utils.DateUtils;
@@ -21,7 +18,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -123,7 +119,7 @@ public class OS {
         logger.info("File moved from " + origPath + " to " + destPath);
     }
 
-    public boolean isImageFile(Path path) {
-        return fileTypeValidator.isMediaType(path.toFile().getName());
+    public boolean isExifCompatibleImageFile(Path path) {
+        return fileTypeValidator.isExifCompatibleType(path.toFile().getName());
     }
 }

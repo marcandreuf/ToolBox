@@ -16,6 +16,7 @@ find . -name "*" -type d -empty -delete
 
 # Delete non image files
 find -name '*.db' -type f -exec rm '{}' \;
+find -name '*.ini' -type f -exec rm '{}' \;
 
 
 

@@ -35,7 +35,7 @@ public class DirWatcherThread implements DirWatcher {
         List<Path> newFiles = watcherPathService.getListOfFiles();
         List<Path> newImageFiles = newFiles
                                         .stream()
-                                        .filter(path -> os.isImageFile(path))
+                                        .filter(path -> os.isExifCompatibleImageFile(path))
                                         .collect(Collectors.toList());
         if(!newImageFiles.isEmpty()) {
             newImageFiles.forEach((path) -> logger.debug("Send photo to archive: " + path.toString()));

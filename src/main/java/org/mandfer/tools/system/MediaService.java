@@ -34,10 +34,10 @@ public class MediaService {
             date = exifService.getImageExifCreationTime(metadata);
         } catch (ImageProcessingException e) {
             try {
-                logger.debug( "There is no EXIF metadata for " + filePath );
+                logger.debug(e.getMessage(), e);
                 date = os.readFileCreationDate(filePath);
             } catch (IOException e1) {
-                throw new FileNotFoundException(filePath+" does not have creation date.");
+                throw new FileNotFoundException(e1.getMessage());
             }
         }
         return date;

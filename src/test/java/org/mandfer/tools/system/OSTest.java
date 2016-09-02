@@ -3,8 +3,6 @@ package org.mandfer.tools.system;
 import com.drew.imaging.ImageMetadataReader;
 import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
-import com.drew.metadata.exif.ExifIFD0Directory;
-import com.drew.metadata.exif.ExifSubIFDDirectory;
 import org.joda.time.DateTime;
 import org.junit.Before;
 import org.junit.Rule;
@@ -192,10 +190,10 @@ public class OSTest {
 
 
     @Test
-    public void testIsMediaType(){
-        os.isImageFile(mock_path);
+    public void testIsExifImageType(){
+        os.isExifCompatibleImageFile(mock_path);
 
-        verify(mock_fiteTypeValidator).isMediaType(sampleFileName);
+        verify(mock_fiteTypeValidator).isExifCompatibleType(sampleFileName);
     }
 
 }

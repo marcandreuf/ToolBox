@@ -12,19 +12,29 @@ import java.util.regex.Pattern;
  */
 public class FileTypeValidatorRegExp implements FileTypeValidator {
 
-    private Pattern pattern;
+    private Pattern exifCompatiblePattern, videoPattern;
     private Matcher matcher;
 
-    private static final String IMAGE_PATTERN =
+    private static final String EXIF_COMPATIBLE_PATTERN =
             "([^\\s]+(\\.(?i)(jpg|png|gif|bmp|mp4|mov|jpeg|webp|psd|ico|pcx|nef|cr2|orf|arw|rw2|rwl|srw))$)";
 
+    private static final String VIDEO_PATTERN =
+            "([^\\s]+(\\.(?i)(avi|mpg|wav|bup|ifo|vob|mp3|3gp))$)";
+
     public FileTypeValidatorRegExp(){
-        pattern = Pattern.compile(IMAGE_PATTERN);
+        exifCompatiblePattern = Pattern.compile(EXIF_COMPATIBLE_PATTERN);
+        videoPattern = Pattern.compile(VIDEO_PATTERN);
     }
 
-    public boolean isMediaType(final String fileName){
-        matcher = pattern.matcher(fileName);
+    public boolean isExifCompatibleType(final String fileName){
+        matcher = exifCompatiblePattern.matcher(fileName);
         return matcher.matches();
 
+    }
+
+    @Override
+    public boolean isVideoType(String fileName) {
+        matcher = videoPattern.matcher(fileName);
+        return matcher.matches();
     }
 }
