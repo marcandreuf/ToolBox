@@ -28,9 +28,7 @@ public class ArchiverService {
         try {
             DateTime dateTime = mediaService.findCreationDate(imagePath);
             Path relativePath = os.calcDateRelPath(imagePath, dateTime);
-            logger.debug("Relative path: "+relativePath);
             Path movingPath = destinationPath.resolve(relativePath);
-            logger.debug("Moving to path: "+movingPath);
             os.moveFileTo(imagePath, movingPath);
         } catch (Exception e) {
             logger.debug(e.getMessage(), e);

@@ -46,11 +46,10 @@ public class OS {
         int attempts = 0;
         do{
             try{
-                logger.debug("Try to read file metadata " + path);
                 metadata = ImageMetadataReader.readMetadata(path.toFile());
                 break;
             }catch (Throwable t){
-                logger.debug("wait 500", t);
+                logger.debug("Unable to read file "+path+" waiting 500ms", t);
                 sleep(500);
             }
             attempts ++;

@@ -6,3 +6,5 @@
 # 3 = log file name
 
 nohup java -jar toolsbox.jar $1 $2 > $3.log 2>&1 &
+
+nohup java -jar ToolBox.jar /home/marc/archbot/origin/ /home/marc/archbot/dest /home/marc/archbot/failed/ > archbot.log 2>&1 &

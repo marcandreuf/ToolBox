@@ -40,7 +40,7 @@ public class DirWatcherThread implements DirWatcher {
         if(!newImageFiles.isEmpty()) {
             newImageFiles.forEach((path) -> logger.debug("Send photo to archive: " + path.toString()));
             blockingQueue.addAll(newImageFiles);
-            logger.debug("==>> Queue remCap = "+blockingQueue.remainingCapacity()+
+            logger.debug("Queue remCap = "+blockingQueue.remainingCapacity()+
                          ", size = "+blockingQueue.size());
         }
 }

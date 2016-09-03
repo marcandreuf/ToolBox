@@ -52,7 +52,6 @@ public class WatcherPathService implements WatcherPath {
         if (!valid) {
             logger.debug("Key reset not valid. ");
         }
-        logger.debug("------------------");
 
         return newFiles;
     }

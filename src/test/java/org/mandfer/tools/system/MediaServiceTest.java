@@ -97,6 +97,8 @@ public class MediaServiceTest {
 
     @Test
     public void failedTestFindCreationDate() throws Exception {
+        when(mock_Os.isExifImageFile(mock_path)).thenReturn(true);
+
         String path = "samplePath";
         expectedException.expect(FileNotFoundException.class);
         when(mock_path.toString()).thenReturn(path);
