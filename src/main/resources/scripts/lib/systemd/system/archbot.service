@@ -4,8 +4,10 @@ After=syslog.target
 After=network.target
 
 [Service]
+PermissionsStartOnly=true
 Type=forking
-EnvironmentFile=-/etc/sysconfig/archbot-marc
+WorkingDirectory=/home/marc/archbot
+EnvironmentFile=-/etc/systemd/archbot.conf
 ExecStart=/usr/local/sbin/daemonize -u $JAVA_USER -o $JAVA_STDOUT -e $JAVA_STDERR -c $JAVA_APPDIR $JAVA_BIN $ARG0 $ARG1 $ARG2 $ARG3
 ExecStop=/bin/kill -TERM $MAINPID
 TimeoutSec=300

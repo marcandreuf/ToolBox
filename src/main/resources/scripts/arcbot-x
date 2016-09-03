@@ -1,15 +1,15 @@
 # Start service
-systemctl start archbot-x
+systemctl start archbot
 
 # Stop service
-systemctl stop archbot-x
+systemctl stop archbot
 
 # Check service status
-systemctl status fixtures
+systemctl status archbot
 
 # Check journal in case of error.
-journalctl -u archbot-x.service
+journalctl -u archbot.service
 
 
 # Enable service to start at boot
-systemctl enable fixtures.service
+systemctl enable archbot.service
