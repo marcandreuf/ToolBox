@@ -1,0 +1,15 @@
+# Config for archbot-marc service
+
+JAVA_USER="marc"
+JAVA_STDOUT="/var/log/archbot/archbot-marc.log"
+JAVA_STDERR="/var/log/archbot/archbot-marc-error.log"
+JAVA_BIN="/usr/java/jdk1.8.0_91/bin/java"
+JAVA_APPDIR="/opt/archbot/archbot-marc"
+#ARG1="-Dfile.encoding=UTF-8 -Dproject.properties=/opt/pronet/fixtures/fixtures.properties"
+#ARG2="-Dlog4j.configuration=file:/opt/pronet/fixtures/fixtures-log.properties"
+ARG0="-jar /opt/archbot/ToolsBox.jar"
+ARG1="path to wathced dir"
+ARG2="path to destination dir"
+ARG3="paht to failed process dir"
+
+
