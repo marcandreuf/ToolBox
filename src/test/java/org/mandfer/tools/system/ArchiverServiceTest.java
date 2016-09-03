@@ -60,8 +60,6 @@ public class ArchiverServiceTest {
     }
 
 
-
-
     @Test
     public void moveFileToBackupFolderIfThereIsAnyException() throws Exception {
         when(mock_mediaService.findCreationDate(mock_path)).thenThrow(FileNotFoundException.class);

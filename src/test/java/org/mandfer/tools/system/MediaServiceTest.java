@@ -59,22 +59,39 @@ public class MediaServiceTest {
 
 
     @Test
-    public void testFindCreationDateInMetadata() throws Exception {
+    public void testFindExifCreationDateInImageFile() throws Exception {
         when(mock_Os.getImageMetadata(mock_path)).thenReturn(mock_metadata);
+        when(mock_Os.isExifImageFile(mock_path)).thenReturn(true);
 
         mediaService.findCreationDate(mock_path);
 
+        verify(mock_Os).isExifImageFile(mock_path);
         verify(mock_Os).getImageMetadata(mock_path);
         verify(mock_exifService).getImageExifCreationTime(mock_metadata);
     }
 
     @Test
-    public void testFindCreationDateInFile() throws Exception {
+    public void testFindImageFileCreationDate() throws Exception {
         when(mock_Os.getImageMetadata(mock_path)).thenThrow(ImageProcessingException.class);
+        when(mock_Os.isExifImageFile(mock_path)).thenReturn(true);
 
         mediaService.findCreationDate(mock_path);
 
+        verify(mock_Os).isExifImageFile(mock_path);
         verify(mock_Os).getImageMetadata(mock_path);
+        verify(mock_Os).readFileCreationDate(mock_path);
+    }
+
+
+    @Test
+    public void testFindVideoCreationDate() throws Exception {
+        when(mock_Os.isExifImageFile(mock_path)).thenReturn(false);
+        when(mock_Os.isVideoFile(mock_path)).thenReturn(true);
+
+        mediaService.findCreationDate(mock_path);
+
+        verify(mock_Os).isExifImageFile(mock_path);
+        verify(mock_Os).isVideoFile(mock_path);
         verify(mock_Os).readFileCreationDate(mock_path);
     }
 

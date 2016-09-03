@@ -35,15 +35,15 @@ public class DirWatcherThread implements DirWatcher {
         List<Path> newFiles = watcherPathService.getListOfFiles();
         List<Path> newImageFiles = newFiles
                                         .stream()
-                                        .filter(path -> os.isExifCompatibleImageFile(path))
+                                        .filter(path -> (os.isExifImageFile(path) || os.isVideoFile(path)) )
                                         .collect(Collectors.toList());
         if(!newImageFiles.isEmpty()) {
             newImageFiles.forEach((path) -> logger.debug("Send photo to archive: " + path.toString()));
             blockingQueue.addAll(newImageFiles);
+            logger.debug("==>> Queue remCap = "+blockingQueue.remainingCapacity()+
+                         ", size = "+blockingQueue.size());
         }
-        logger.debug("==>> Queue remCap = "+blockingQueue.remainingCapacity()+
-                     ", size = "+blockingQueue.size());
-    }
+}
 
     @Override
     public void run() {

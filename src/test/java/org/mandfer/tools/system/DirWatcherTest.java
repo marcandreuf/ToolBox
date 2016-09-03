@@ -37,29 +37,47 @@ public class DirWatcherTest {
     @Test
     public void testGetValidImageFiles() throws Exception {
         when(mock_watcherPathService.getListOfFiles()).thenReturn(stub_newFilesList);
-        when(mock_Os.isExifCompatibleImageFile(mock_newFilePath)).thenReturn(true);
+        when(mock_Os.isExifImageFile(mock_newFilePath)).thenReturn(true);
+        when(mock_Os.isVideoFile(mock_newFilePath)).thenReturn(false);
 
         dirWatcher.watch();
 
         verify(mock_watcherPathService).getListOfFiles();
-        verify(mock_Os).isExifCompatibleImageFile(mock_newFilePath);
+        verify(mock_Os).isExifImageFile(mock_newFilePath);
+        verify(mock_blqQueue).remainingCapacity();
+        verify(mock_blqQueue).size();
+        verify(mock_blqQueue).addAll(anyCollection());
+    }
+
+    @Test
+    public void testGetValidVideoFiles() throws Exception {
+        when(mock_watcherPathService.getListOfFiles()).thenReturn(stub_newFilesList);
+        when(mock_Os.isExifImageFile(mock_newFilePath)).thenReturn(false);
+        when(mock_Os.isVideoFile(mock_newFilePath)).thenReturn(true);
+
+        dirWatcher.watch();
+
+        verify(mock_watcherPathService).getListOfFiles();
+        verify(mock_Os).isExifImageFile(mock_newFilePath);
+        verify(mock_Os).isVideoFile(mock_newFilePath);
         verify(mock_blqQueue).remainingCapacity();
         verify(mock_blqQueue).size();
         verify(mock_blqQueue).addAll(anyCollection());
     }
 
 
+
     @Test
-    public void testGetNonImageFiles() throws Exception {
+    public void testGetNonMediaFiles() throws Exception {
         when(mock_watcherPathService.getListOfFiles()).thenReturn(stub_newFilesList);
-        when(mock_Os.isExifCompatibleImageFile(mock_newFilePath)).thenReturn(false);
+        when(mock_Os.isExifImageFile(mock_newFilePath)).thenReturn(false);
+        when(mock_Os.isVideoFile(mock_newFilePath)).thenReturn(false);
 
         dirWatcher.watch();
 
         verify(mock_watcherPathService).getListOfFiles();
-        verify(mock_Os).isExifCompatibleImageFile(mock_newFilePath);
-        verify(mock_blqQueue).remainingCapacity();
-        verify(mock_blqQueue).size();
+        verify(mock_Os).isExifImageFile(mock_newFilePath);
+        verify(mock_Os).isVideoFile(mock_newFilePath);
         verifyNoMoreInteractions(mock_blqQueue);
     }
 
@@ -71,8 +89,6 @@ public class DirWatcherTest {
 
         verify(mock_watcherPathService).getListOfFiles();
         verifyNoMoreInteractions(mock_Os);
-        verify(mock_blqQueue).remainingCapacity();
-        verify(mock_blqQueue).size();
         verifyNoMoreInteractions(mock_blqQueue);
     }
 

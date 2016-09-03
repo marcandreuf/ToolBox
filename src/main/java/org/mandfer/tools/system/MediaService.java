@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Calendar;
 
 /**
  * Created by marcandreuf on 21/08/16.
@@ -28,17 +29,27 @@ public class MediaService {
 
 
     public DateTime findCreationDate(Path filePath) throws FileNotFoundException {
+        DateTime date = DateTime.now();
+        try {
+            if(os.isExifImageFile(filePath)) {
+                Metadata metadata = os.getImageMetadata(filePath);
+                date = exifService.getImageExifCreationTime(metadata);
+            }else if(os.isVideoFile(filePath)){
+                date = getFileCreationDate(filePath);
+            }
+        } catch (ImageProcessingException e) {
+            logger.debug(e.getMessage(), e);
+            date = getFileCreationDate(filePath);
+        }
+        return date;
+    }
+
+    private DateTime getFileCreationDate(Path filePath) throws FileNotFoundException {
         DateTime date;
         try {
-            Metadata metadata = os.getImageMetadata(filePath);
-            date = exifService.getImageExifCreationTime(metadata);
-        } catch (ImageProcessingException e) {
-            try {
-                logger.debug(e.getMessage(), e);
-                date = os.readFileCreationDate(filePath);
-            } catch (IOException e1) {
-                throw new FileNotFoundException(e1.getMessage());
-            }
+            date = os.readFileCreationDate(filePath);
+        } catch (IOException e1) {
+            throw new FileNotFoundException(e1.getMessage());
         }
         return date;
     }

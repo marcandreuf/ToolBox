@@ -188,12 +188,16 @@ public class OSTest {
                 File.separator + sampleFileName, testPath.toString());
     }
 
-
     @Test
     public void testIsExifImageType(){
-        os.isExifCompatibleImageFile(mock_path);
-
+        os.isExifImageFile(mock_path);
         verify(mock_fiteTypeValidator).isExifCompatibleType(sampleFileName);
+    }
+
+    @Test
+    public void testIsVideoType(){
+        os.isVideoFile(mock_path);
+        verify(mock_fiteTypeValidator).isVideoType(sampleFileName);
     }
 
 }

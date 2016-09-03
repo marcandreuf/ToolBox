@@ -119,7 +119,12 @@ public class OS {
         logger.info("File moved from " + origPath + " to " + destPath);
     }
 
-    public boolean isExifCompatibleImageFile(Path path) {
+    public boolean isExifImageFile(Path path) {
         return fileTypeValidator.isExifCompatibleType(path.toFile().getName());
+    }
+
+
+    public boolean isVideoFile(Path filePath) {
+        return fileTypeValidator.isVideoType(filePath.toFile().getName());
     }
 }
