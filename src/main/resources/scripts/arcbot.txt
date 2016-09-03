@@ -1,3 +1,6 @@
+#http://ae.koroglu.org/alternative-way-to-daemonize-java-applications-on-systemd-centos7rhel7/
+# http://software.clapper.org/daemonize/#installation
+
 # Start service
 systemctl start archbot
 
