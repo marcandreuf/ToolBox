@@ -28,7 +28,7 @@ public class FileTypeValidatorTest {
                 "a.JPG", "a.GIF","a.PNG", "a.BMP",
                 "a.JpG", "a.GiF","a.PnG", "a.BmP",
                 "jpg.jpg", "gif.gif","png.png", "bmp.bmp",
-                "a.mp4", "a.mov", "a.MP4", "a.MOV",
+                "a.mp4", "a.MP4",
                 "a.jpeg", "a.webp", "a.psd",
                 "a.JPEG", "a.WEBP", "a.PSD",
                 "a.ico", "a.ICO", "a.pcx", "a.PCX",
@@ -43,6 +43,7 @@ public class FileTypeValidatorTest {
 
         invalidImageFileNames = new String[] {
                 "a.txt", "a.exe","a.","a.mp3",
+                "a.mov",  "a.MOV",
                 "jpg", "gif","png","bmp", ".JPG.bts"
         };
 
@@ -55,7 +56,8 @@ public class FileTypeValidatorTest {
                 "a.ifo", "a.IFO",
                 "a.vob", "a.VOB",
                 "a.mp3", "a.MP3",
-                "a.3gp", "a.3GP"
+                "a.3gp", "a.3GP",
+                "a.mov", "a.MOV"
         };
 
 

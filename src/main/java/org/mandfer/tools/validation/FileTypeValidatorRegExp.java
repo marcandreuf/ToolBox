@@ -16,10 +16,10 @@ public class FileTypeValidatorRegExp implements FileTypeValidator {
     private Matcher matcher;
 
     private static final String EXIF_COMPATIBLE_PATTERN =
-            "([^\\s]+(\\.(?i)(jpg|png|gif|bmp|mp4|mov|jpeg|webp|psd|ico|pcx|nef|cr2|orf|arw|rw2|rwl|srw))$)";
+            "([^\\s]+(\\.(?i)(jpg|png|gif|bmp|mp4|jpeg|webp|psd|ico|pcx|nef|cr2|orf|arw|rw2|rwl|srw))$)";
 
     private static final String VIDEO_PATTERN =
-            "([^\\s]+(\\.(?i)(avi|mpg|wav|bup|ifo|vob|mp3|3gp))$)";
+            "([^\\s]+(\\.(?i)(avi|mpg|wav|bup|ifo|vob|mp3|3gp|mov))$)";
 
     public FileTypeValidatorRegExp(){
         exifCompatiblePattern = Pattern.compile(EXIF_COMPATIBLE_PATTERN);
