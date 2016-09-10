@@ -104,7 +104,7 @@ public class OS {
      */
     public Path calcDateRelPath(Path filePath, DateTime dateTime) {
         int year = dateTime.getYear();
-        String month = dateUtils.getShortMonth(dateTime, Locale.getDefault()).toUpperCase();
+        String month = dateUtils.getShortMonth(dateTime, Locale.getDefault());
         return Paths.get(year +
                 File.separator + month +
                 File.separator + filePath.toFile().getName());

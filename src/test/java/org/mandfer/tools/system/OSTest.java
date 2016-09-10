@@ -184,7 +184,7 @@ public class OSTest {
         Path testPath = os.calcDateRelPath(mock_path, mock_dateTime);
 
         assertEquals(sampleYear +
-                File.separator + sampleMonth.toUpperCase() +
+                File.separator + sampleMonth +
                 File.separator + sampleFileName, testPath.toString());
     }
 
