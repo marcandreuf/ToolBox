@@ -49,7 +49,7 @@ public class OS {
                 metadata = ImageMetadataReader.readMetadata(path.toFile());
                 break;
             }catch (Throwable t){
-                logger.debug("Unable to read file "+path+" waiting 500ms", t);
+                logger.debug("Unable to read file "+path+" waiting 500ms");
                 sleep(500);
             }
             attempts ++;

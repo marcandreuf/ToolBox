@@ -38,7 +38,7 @@ public class MediaService {
                 date = getFileCreationDate(filePath);
             }
         } catch (ImageProcessingException e) {
-            logger.debug(e.getMessage(), e);
+            logger.debug(e.getMessage());
             date = getFileCreationDate(filePath);
         }
         return date;
@@ -48,6 +48,7 @@ public class MediaService {
         DateTime date;
         try {
             date = os.readFileCreationDate(filePath);
+            logger.debug("File creation date: "+date);
         } catch (IOException e1) {
             throw new FileNotFoundException(e1.getMessage());
         }
