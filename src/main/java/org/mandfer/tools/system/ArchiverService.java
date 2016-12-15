@@ -24,15 +24,16 @@ public class ArchiverService {
     }
 
 
-    public void archivePhoto(Path imagePath, Path destinationPath, Path failedPath) throws IOException {
+    public void archive(Path filePath, Path destPath, Path failPath) throws IOException {
         try {
-            DateTime dateTime = mediaService.findCreationDate(imagePath);
-            Path relativePath = os.calcDateRelPath(imagePath, dateTime);
-            Path movingPath = destinationPath.resolve(relativePath);
-            os.moveFileTo(imagePath, movingPath);
+            logger.debug("Processing file: " + filePath);
+            DateTime dateTime = mediaService.findCreationDate(filePath);
+            Path relativePath = os.calcDateRelPath(filePath, dateTime);
+            Path movingPath = destPath.resolve(relativePath);
+            os.moveFileTo(filePath, movingPath);
         } catch (Exception e) {
             logger.debug(e.getMessage(), e);
-            moveFileToBackup(imagePath, failedPath);
+            moveFileToBackup(filePath, failPath);
         }
     }
 

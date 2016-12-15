@@ -47,12 +47,12 @@ public class ArchiverServiceTest {
     }
 
     @Test
-    public void testArchivePhoto() throws Exception {
+    public void testArchiveFile() throws Exception {
         when(mock_mediaService.findCreationDate(mock_path)).thenReturn(mock_creationDate);
         when(mock_Os.calcDateRelPath(mock_path, mock_creationDate)).thenReturn(mock_relPath);
         when(mock_destPath.resolve(mock_relPath)).thenReturn(mock_fullPath);
 
-        archiverService.archivePhoto(mock_path, mock_destPath, mock_failed);
+        archiverService.archive(mock_path, mock_destPath, mock_failed);
 
         verify(mock_mediaService).findCreationDate(mock_path);
         verify(mock_Os).calcDateRelPath(mock_path, mock_creationDate);
@@ -64,7 +64,7 @@ public class ArchiverServiceTest {
     public void moveFileToBackupFolderIfThereIsAnyException() throws Exception {
         when(mock_mediaService.findCreationDate(mock_path)).thenThrow(FileNotFoundException.class);
 
-        archiverService.archivePhoto(mock_path, mock_destPath, mock_failed);
+        archiverService.archive(mock_path, mock_destPath, mock_failed);
 
         verify(mock_Os).moveFileTo(mock_path, mock_failed);
     }

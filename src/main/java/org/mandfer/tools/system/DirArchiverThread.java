@@ -18,25 +18,24 @@ public class DirArchiverThread implements DirArchiver  {
     private final Path destPath;
     private final Path failPath;
     private final ArchiverService archiverService;
-    private final BlockingQueue<Path> blqQueue;
+    private final BlockingQueue<Path> bloqingQueueFilesToProcess;
 
 
     @Inject
     public DirArchiverThread(@Assisted("destPath") Path destPath,
                              @Assisted("failPath") Path failPath,
                              ArchiverService archiverService,
-                             @Assisted BlockingQueue<Path> blqQueue) {
+                             @Assisted BlockingQueue<Path> bloqingQueueFilesToProcess) {
         this.destPath = destPath;
         this.failPath = failPath;
         this.archiverService = archiverService;
-        this.blqQueue = blqQueue;
+        this.bloqingQueueFilesToProcess = bloqingQueueFilesToProcess;
     }
 
     @Override
     public void archiveNext() throws InterruptedException, IOException {
-        Path next = blqQueue.take();
-        logger.debug("Process file: " + next);
-        archiverService.archivePhoto(next, destPath, failPath);
+        Path filePath = bloqingQueueFilesToProcess.take();
+        archiverService.archive(filePath, destPath, failPath);
     }
 
     @Override

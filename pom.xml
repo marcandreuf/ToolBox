@@ -4,7 +4,7 @@
 
     <groupId>org.mandfer</groupId>
     <artifactId>toolsbox</artifactId>
-    <version>1.0.0.01-SNAPSHOT</version>
+    <version>1.0.0.2</version>
     <packaging>jar</packaging>
 
     <name>Tools Box: ${project.artifactId}</name>

@@ -3,30 +3,27 @@ ToolsBox: A collection of useful things
 
 ## 1. Arcbot: 
 
-Is a simple tool which listens for "Origin" folder creation event files and for each new new file it will check 
-if it is an image or a video and it will move it to the "Destination" folder organised by data creation time
-in subfolders of year, month and day. It will use EFIX metadata information if it is available or the creation 
-date instead.
+This is a tool which track the "Origin" folder for creation event files and for each new file the program will move the
+ file to the "Destination" folder organised by creation date. The program geneate the subfolders structure in the
+ format "yyyy/mm/" all in numeric values. The program tries always to read the EFIX metadata information, if it is not
+  available the file creation date is used instead.
 
 
 ### Installation:
 
 1. Create folder app folder
 ``` 
- mkdir ~/apps/arcbot/current
- cd  ~/apps/arcbot/current
-``` 
-2. Copy toolsbar.jar with 
+ mkdir ~/archbot
+ cd ~/archbot
 ```
-wget "https://github.com/marcandreuf/ToolBox/blob/master/out/artifacts/arcbot_jar/toolsbox.jar"
+2. Download the ToolBox.jar into the ~/archbot
+```
+wget "https://github.com/marcandreuf/ToolBox/blob/master/out/artifacts/arcbot_jar/ToolBox.jar"
 ```
 3. Give permissions 
 ```
-chmod 764 toolsbox.jar
+chmod 764 ToolBox.jar
 ```
-
-By default the jar file folder it "$USER_HOME/apps/arcbot/current/toolsbox.jar". If a different location is chosen, 
-please update the "src/main/resources/scripts/arcbot-xxx" service file.
 
 
 ### How to run: 
@@ -41,7 +38,7 @@ i. Directly run with the command as follows:
  nohup java -jar toolsbox.jar $1 $2 > $3.log 2>&1 &
 ```
 
-
+------ TODO: to be reviewed and updated for systemctl instead of init.d ------
 ii. Setup a background service. 
 
 1. Download 

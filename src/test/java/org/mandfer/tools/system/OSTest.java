@@ -9,6 +9,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mandfer.tools.format.StringFormatter;
 import org.mandfer.tools.utils.DateUtils;
 import org.mandfer.tools.validation.FileTypeValidator;
 import org.mockito.Mockito;
@@ -43,7 +44,8 @@ public class OSTest {
     private DateTime currentTime, mock_dateTime;
     private File mock_file;
     private Path mock_path;
-    private DateUtils mock_dateUtils;
+    //private DateUtils mock_dateUtils;
+    private StringFormatter mock_stringFormatter;
     private FileTypeValidator mock_fiteTypeValidator;
     private OS os;
     private String sampleFileName = "sampleFileName";
@@ -61,14 +63,15 @@ public class OSTest {
         mock_metadata = mock(Metadata.class);
         currentTime = DateTime.now();
         mock_dateTime = PowerMockito.mock(DateTime.class);
-        mock_dateUtils = mock(DateUtils.class);
+        //mock_dateUtils = mock(DateUtils.class);
+        mock_stringFormatter = mock(StringFormatter.class);
         mock_fiteTypeValidator = mock(FileTypeValidator.class);
 
-        os = new OS(mock_dateUtils, mock_fiteTypeValidator);
+        os = new OS(mock_stringFormatter, mock_fiteTypeValidator);
 
         when(mock_file.getName()).thenReturn(sampleFileName);
         when(mock_path.toFile()).thenReturn(mock_file);
-        when(mock_dateUtils.createJodaDateTime(any(Date.class))).thenReturn(currentTime);
+        //when(mock_dateUtils.createJodaDateTime(any(Date.class))).thenReturn(currentTime);
     }
 
     @Test
@@ -176,10 +179,10 @@ public class OSTest {
 
     @Test
     public void testCalcRelativePath(){
-        String sampleMonth = "ago";
+        String sampleMonth = "08";
         int sampleYear = 2008;
         when(mock_dateTime.getYear()).thenReturn(sampleYear);
-        when(mock_dateUtils.getShortMonth(mock_dateTime, Locale.getDefault())).thenReturn(sampleMonth);
+        when(mock_stringFormatter.formatNumber(anyInt(), anyInt())).thenReturn(sampleMonth);
 
         Path testPath = os.calcDateRelPath(mock_path, mock_dateTime);
 

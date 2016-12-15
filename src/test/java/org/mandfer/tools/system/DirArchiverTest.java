@@ -47,7 +47,7 @@ public class DirArchiverTest {
         dirArchiver.archiveNext();
 
         verify(mock_blqQueue).take();
-        verify(mock_archiverService).archivePhoto(mock_nextPath, mock_destPath, mock_failPath);
+        verify(mock_archiverService).archive(mock_nextPath, mock_destPath, mock_failPath);
     }
 
 

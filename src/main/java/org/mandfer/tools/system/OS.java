@@ -5,7 +5,7 @@ import com.drew.imaging.ImageProcessingException;
 import com.drew.metadata.Metadata;
 import com.google.inject.Inject;
 import org.joda.time.DateTime;
-import org.mandfer.tools.utils.DateUtils;
+import org.mandfer.tools.format.StringFormatter;
 import org.mandfer.tools.validation.FileTypeValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,21 +18,22 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Locale;
 
 /**
  * Created by marcandreuf on 19/07/2016.
  */
 public class OS {
     private static final int MAX_READ_METADATA_ATTEPTS = 3;
+    public static final int MONTH_DIGITS_FORMAT = 2;
     private static Logger logger = LoggerFactory.getLogger(OS.class);
 
-    private final DateUtils dateUtils;
+    //private final DateUtils dateUtils;
+    private final StringFormatter stringFormatter;
     private final FileTypeValidator fileTypeValidator;
 
     @Inject
-    public OS(DateUtils dateUtils, FileTypeValidator fileTypeValidator) {
-        this.dateUtils = dateUtils;
+    public OS(StringFormatter stringFormatter, FileTypeValidator fileTypeValidator) {
+        this.stringFormatter = stringFormatter;
         this.fileTypeValidator = fileTypeValidator;
     }
 
@@ -42,25 +43,21 @@ public class OS {
     }
 
     public Metadata getImageMetadata(Path path) throws ImageProcessingException {
-        Metadata metadata = null;
+        return tryMaxAttemptsToReadMetadata(path);
+    }
+
+    private Metadata tryMaxAttemptsToReadMetadata(Path path) throws ImageProcessingException {
         int attempts = 0;
         do{
             try{
-                metadata = ImageMetadataReader.readMetadata(path.toFile());
-                break;
+                return ImageMetadataReader.readMetadata(path.toFile());
             }catch (Throwable t){
                 logger.debug("Unable to read file "+path+" waiting 500ms");
                 sleep(500);
             }
             attempts ++;
         }while (attempts <= MAX_READ_METADATA_ATTEPTS);
-
-        if(metadata != null){
-            return metadata;
-        }else{
-            throw new ImageProcessingException("No metadata found for file: "+path);
-        }
-
+        throw new ImageProcessingException("No metadata found for file: "+path);
     }
 
     private void sleep(int milliseconds) {
@@ -104,7 +101,7 @@ public class OS {
      */
     public Path calcDateRelPath(Path filePath, DateTime dateTime) {
         int year = dateTime.getYear();
-        String month = dateUtils.getShortMonth(dateTime, Locale.getDefault());
+        String month = stringFormatter.formatNumber(dateTime.getMonthOfYear(), MONTH_DIGITS_FORMAT);
         return Paths.get(year +
                 File.separator + month +
                 File.separator + filePath.toFile().getName());
