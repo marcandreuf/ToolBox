@@ -1,19 +1,11 @@
 package org.mandfer.tools.system;
 
-import com.drew.imaging.ImageProcessingException;
-import com.drew.metadata.Metadata;
-import org.joda.time.DateTime;
 import org.mandfer.tools.guice.ToolsBoxFactory;
-import org.mandfer.tools.validation.FileTypeValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.*;
-
-import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
+import java.nio.file.Path;
 
 /**
  * Created by marcandreuf on 21/08/16.

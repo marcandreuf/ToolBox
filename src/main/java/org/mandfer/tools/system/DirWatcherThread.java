@@ -33,6 +33,10 @@ public class DirWatcherThread implements DirWatcher {
     @Override
     public void watch() throws Exception {
         List<Path> newFiles = watcherPathService.getListOfFiles();
+
+        //TODO: If path is a folder read files inside the folder.
+        // Implement new test cases ...
+
         List<Path> newImageFiles = newFiles
                                         .stream()
                                         .filter(path -> (os.isExifImageFile(path) || os.isVideoFile(path)) )
