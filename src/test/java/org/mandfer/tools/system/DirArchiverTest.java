@@ -10,9 +10,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.concurrent.BlockingQueue;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by marc on 22/08/16.

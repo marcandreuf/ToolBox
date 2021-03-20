@@ -1,15 +1,9 @@
 package org.mandfer.tools.xml;
 
 
-import java.util.List;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
 import org.mandfer.tools.guice.ToolsBoxFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 /**
  * @author marcandreuf on 24/10/2014.

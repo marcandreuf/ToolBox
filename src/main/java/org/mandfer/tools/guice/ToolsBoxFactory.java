@@ -2,7 +2,6 @@ package org.mandfer.tools.guice;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-import com.google.inject.Provides;
 import org.mandfer.tools.system.DirArchiver;
 import org.mandfer.tools.system.DirWatcher;
 import org.mandfer.tools.system.WatcherPathService;

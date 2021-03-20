@@ -1,11 +1,5 @@
 package org.mandfer.tools.xml;
 
-import java.io.File;
-import static org.junit.Assert.assertEquals;
-import org.junit.Test;
-import org.mandfer.tools.guice.ToolsBoxFactory;
-import org.w3c.dom.Document;
-
 /**
  * @author marcandreuf on 24/10/2014.
  */

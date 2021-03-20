@@ -2,9 +2,6 @@ package org.mandfer.tools.guice;
 
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
-import com.google.inject.Singleton;
-import com.google.inject.TypeLiteral;
 import com.google.inject.assistedinject.FactoryModuleBuilder;
 import org.mandfer.tools.config.ConfigLoader;
 import org.mandfer.tools.config.DefaultsConfigLoader;
@@ -14,11 +11,6 @@ import org.mandfer.tools.system.*;
 import org.mandfer.tools.utils.DateUtils;
 import org.mandfer.tools.validation.FileTypeValidator;
 import org.mandfer.tools.validation.FileTypeValidatorRegExp;
-
-import javax.xml.ws.handler.MessageContext;
-import java.nio.file.Path;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.SynchronousQueue;
 
 /**
  * Guice technology configuration module class for tools box package.
@@ -54,10 +46,5 @@ public class ToolsBoxGuiceModule extends AbstractModule {
         install(new FactoryModuleBuilder()
                 .implement(DirWatcher.class, DirWatcherThread.class)
                 .build(DirWatcherFactory.class));
-
-
-
     }
-
-
 }

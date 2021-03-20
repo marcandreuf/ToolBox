@@ -2,17 +2,12 @@ package org.mandfer.tools.utils;
 
 
 import org.joda.time.*;
-import org.joda.time.LocalDate;
-import org.joda.time.Period;
-import org.joda.time.format.DateTimeFormat;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.time.*;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;

@@ -11,9 +11,7 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.io.FileNotFoundException;
 import java.nio.file.Path;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * Created by marc on 21/08/16.

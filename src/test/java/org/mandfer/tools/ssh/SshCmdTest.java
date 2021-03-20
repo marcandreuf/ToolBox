@@ -1,7 +1,5 @@
 package org.mandfer.tools.ssh;
 
-import org.mandfer.tools.guice.ToolsBoxFactory;
-
 /**
  * @author marcandreuf on 24/10/2014.
  */

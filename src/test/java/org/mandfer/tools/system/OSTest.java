@@ -10,7 +10,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mandfer.tools.format.StringFormatter;
-import org.mandfer.tools.utils.DateUtils;
 import org.mandfer.tools.validation.FileTypeValidator;
 import org.mockito.Mockito;
 import org.powermock.api.mockito.PowerMockito;
@@ -24,8 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.nio.file.attribute.FileTime;
-import java.util.Date;
-import java.util.Locale;
 
 import static org.hamcrest.core.StringContains.containsString;
 import static org.junit.Assert.assertEquals;

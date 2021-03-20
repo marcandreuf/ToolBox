@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.Calendar;
 
 /**
  * Created by marcandreuf on 21/08/16.

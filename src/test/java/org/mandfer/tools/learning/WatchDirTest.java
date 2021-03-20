@@ -5,7 +5,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
-import java.text.DecimalFormat;
 
 /**
  * Created by andreufm on 17/03/2016.
